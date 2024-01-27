@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Version>0.0.0.1</Version>
+    <AssemblyTitle>EC Materia Framework</AssemblyTitle>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net7.0</TargetFramework>
+    <PlatformTarget>x64</PlatformTarget>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MessagePack" Version="2.5.140" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="protobuf-net" Version="3.2.30" />
+    <PackageReference Include="Reloaded.Hooks" Version="4.3.0" />
+    <PackageReference Include="Reloaded.Memory.Sigscan" Version="3.1.6" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\deps\ImGuiScene\ImGuiScene\ImGuiScene.csproj" />
+    <ProjectReference Include="..\deps\ImGuiScene\deps\ImGui.NET\src\ImGui.NET-472\ImGui.NET-472.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="ECGen.Generated">
+      <HintPath>..\deps\ECGen\ECGen.Generated.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>
