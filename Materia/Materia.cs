@@ -1,9 +1,10 @@
-using System.Reflection;
-using PInvoke;
 using Materia.Game;
 using Materia.Plugin;
 using Materia.UI;
 using Materia.Utilities;
+using PInvoke;
+using System.Diagnostics;
+using System.Reflection;
 
 namespace Materia;
 
@@ -22,17 +23,19 @@ internal static class Materia
 
     public static void Initialize()
     {
-        if (!GameData.CheckVersion())
-        {
-            var result = User32.MessageBox(IntPtr.Zero, $"The installed {nameof(Materia)} Framework version is incompatible with the current game version, allowing the game to continue may be unsafe.\nContinue?",
-                $"{nameof(Materia)} Framework", User32.MessageBoxOptions.MB_YESNO | User32.MessageBoxOptions.MB_ICONEXCLAMATION);
-            if (result != User32.MessageBoxResult.IDYES)
-                Environment.Exit(0);
-            return;
-        }
-
         try
         {
+            StopCrashHandler();
+
+            if (!GameData.CheckVersion())
+            {
+                var result = User32.MessageBox(IntPtr.Zero, $"The installed {nameof(Materia)} Framework version is incompatible with the current game version, allowing the game to continue may be unsafe.\nContinue?",
+                    $"{nameof(Materia)} Framework", User32.MessageBoxOptions.MB_YESNO | User32.MessageBoxOptions.MB_ICONEXCLAMATION);
+                if (result != User32.MessageBoxResult.IDYES)
+                    Environment.Exit(0);
+                return;
+            }
+
             DisableTelemetry();
             Logging.Info($"Starting {nameof(Materia)} {Assembly.GetExecutingAssembly().GetName().Version}");
             Logging.Info($"Game Version Timestamp: {DateTimeOffset.FromUnixTimeSeconds(GameData.Symbols.DllTimestamp):g}");
@@ -43,28 +46,32 @@ internal static class Materia
         }
         catch (Exception e)
         {
-            Logging.Error(e);
-#if !DEBUG
-            throw;
-#endif
+            FatalError(e);
         }
     }
 
     private static void InitializeSystems()
     {
-        RenderManager = new RenderManager();
-        InputManager = new InputManager(RenderManager.SwapChain);
-        ImGuiManager = new ImGuiManager();
-        RenderManager.Present += ImGuiManager.Present;
-        RenderManager.PreResizeBuffers += ImGuiManager.PreResizeBuffers;
-        RenderManager.PostResizeBuffers += ImGuiManager.PostResizeBuffers;
-        InputManager.WndProcHandler = ImGuiManager.WndProcHandler;
-        ImGuiManager.Draw += Draw;
-        Logging.Info($"Finished initializing {nameof(Materia)}");
+        try
+        {
+            RenderManager = new RenderManager();
+            InputManager = new InputManager(RenderManager.SwapChain);
+            ImGuiManager = new ImGuiManager();
+            RenderManager.Present += ImGuiManager.Present;
+            RenderManager.PreResizeBuffers += ImGuiManager.PreResizeBuffers;
+            RenderManager.PostResizeBuffers += ImGuiManager.PostResizeBuffers;
+            InputManager.WndProcHandler = ImGuiManager.WndProcHandler;
+            ImGuiManager.Draw += Draw;
+            Logging.Info($"Finished initializing {nameof(Materia)}");
 
-        SigScanner.InjectAttributes(Assembly.GetExecutingAssembly(), hookManager);
-        PluginManager.Initialize();
-        systemsInitialized = true;
+            SigScanner.InjectAttributes(Assembly.GetExecutingAssembly(), hookManager);
+            PluginManager.Initialize();
+            systemsInitialized = true;
+        }
+        catch (Exception e)
+        {
+            FatalError(e);
+        }
     }
 
     public static void Update()
@@ -89,6 +96,14 @@ internal static class Materia
         PluginManager.Draw();
     }
 
+    private static void StopCrashHandler()
+    {
+        const string crashHandlerName = "UnityCrashHandler64";
+        var path = new FileInfo($"{crashHandlerName}.exe").FullName;
+        var process = Process.GetProcessesByName(crashHandlerName).First(p => p.MainModule?.FileName == path);
+        process.Kill(true);
+    }
+
     private static unsafe void DisableTelemetry()
     {
         new MateriaHook<BugsnagStartDelegate>(GameData.GetSymbolAddress("BugsnagUnity.Bugsnag$$Start"), (_, _) => { }).Enable();
@@ -109,6 +124,13 @@ internal static class Materia
                     throw new ApplicationException();
             }
         }
+    }
+
+    private static void FatalError(Exception e)
+    {
+        Logging.Error(e);
+        User32.MessageBox(IntPtr.Zero, $"The following error occurred during initialization:\n\n{e}", $"{nameof(Materia)} Framework", User32.MessageBoxOptions.MB_ICONERROR);
+        Environment.Exit(0);
     }
 
     public static void Dispose()
