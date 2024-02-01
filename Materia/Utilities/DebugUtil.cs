@@ -14,6 +14,8 @@ public static unsafe class DebugUtil
 
     public static string GetTypeName(void* o, bool isClassType = false)
     {
+        if (o == null) return string.Empty;
+
         try
         {
             var klass = isClassType ? (Il2CppClass*)o : ((Il2CppObject*)o)->klass;
@@ -31,6 +33,8 @@ public static unsafe class DebugUtil
 
     public static void PrintFields(void* o, bool isClassType = false) // TODO: Inherited fields
     {
+        if (o == null) return;
+
         try
         {
             var klass = isClassType ? (Il2CppClass*)o : ((Il2CppObject*)o)->klass;
@@ -46,6 +50,8 @@ public static unsafe class DebugUtil
 
     public static void PrintVirtualFunctions<T>(T* o, bool isClassType = false) where T : unmanaged
     {
+        if (o == null) return;
+
         try
         {
             object? vtbl;

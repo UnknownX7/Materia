@@ -10,20 +10,6 @@ public static unsafe class GameInterop
     private static readonly Dictionary<Type, (string, string)> cachedTypeNames = new();
     private static readonly Dictionary<string, nint> cachedInstanceStaticFields = new();
 
-    public static Command_Battle_BattleSystem* BattleSystem => GetSharedMonoBehaviourInstance<Command_Battle_BattleSystem>();
-    public static Command_Battle_HUD* BattleHUD => GetSharedMonoBehaviourInstance<Command_Battle_HUD>();
-    public static Command_Dungeon_DungeonSystem* DungeonSystem => GetSharedMonoBehaviourInstance<Command_Dungeon_DungeonSystem>();
-    public static Command_Dungeon_HUD* DungeonHUD => GetSharedMonoBehaviourInstance<Command_Dungeon_HUD>(1);
-    public static UISystem_StaticFields* UISystem { get; } = (UISystem_StaticFields*)GetClass<UISystem>()->static_fields;
-    public static Command_UI_ScreenManager* ScreenManager => UISystem->screenManager != null ? UISystem->screenManager->value : null;
-    public static bool IsBattling => BattleSystem != null && (DungeonSystem == null || DungeonSystem->encountingBattle->value);
-    public static bool IsMultiplayer => BattleSystem != null && BattleSystem->isMulti;
-    public static bool IsServerside => BattleSystem != null && BattleSystem->usesBattleServer;
-    public static bool IsDefeated => IsBattling && (BattleSystem->ownIsStatusDefeated->GetValue<bool>() || BattleSystem->ownIsDefeated->GetValue<bool>());
-    public static bool IsPaused => IsBattling && BattleSystem->isPause->value;
-    public static bool IsBattleWon => IsBattling && BattleSystem->battleResultType->GetValue<int>() == 1;
-    public static bool IsPlayingCutscene => IsBattling && BattleSystem->playingCutscene->value;
-
     public static nint GetSharedMonoBehaviourInstance(string name, int symbolIndex = 0)
     {
         if (cachedInstanceStaticFields.TryGetValue(symbolIndex > 0 ? $"{name}_{symbolIndex}" : name, out var staticFields))
@@ -59,6 +45,8 @@ public static unsafe class GameInterop
     }
 
     public static Il2CppClass* GetClass<T>() where T : unmanaged => GetClass(GetCachedTypeName<T>().fullName);
+
+    public static string GetTypeName<T>() where T : unmanaged => GetCachedTypeName<T>().fullName;
 
     private static (string fullName, string name) GetCachedTypeName<T>() where T : unmanaged
     {
