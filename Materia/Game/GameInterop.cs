@@ -38,6 +38,18 @@ public static unsafe class GameInterop
     public static T* GetSharedMonoBehaviourInstance<T>(string name, int symbolIndex = 0) where T : unmanaged => (T*)GetSharedMonoBehaviourInstance(name, symbolIndex);
     public static T* GetSharedMonoBehaviourInstance<T>(int symbolIndex = 0) where T : unmanaged => (T*)GetSharedMonoBehaviourInstance(GetCachedTypeName<T>().name, symbolIndex);
 
+    [GameSymbol("Singleton<object>$$get_Instance", Required = true)]
+    private static delegate* unmanaged<nint, nint> singletonGetInstance;
+    public static nint GetSingletonInstance(string name, int symbolIndex = 0)
+    {
+        if (!GameData.TryGetSymbolAddress(symbolIndex > 0 ? $"Method$Singleton<{name}>.get_Instance()_{symbolIndex}" : $"Method$Singleton<{name}>.get_Instance()", out var address)) return nint.Zero;
+        address = *(nint*)address;
+        return (nuint)address <= uint.MaxValue ? nint.Zero : singletonGetInstance(address);
+    }
+
+    public static T* GetSingletonInstance<T>(string name, int symbolIndex = 0) where T : unmanaged => (T*)GetSingletonInstance(name, symbolIndex);
+    public static T* GetSingletonInstance<T>(int symbolIndex = 0) where T : unmanaged => (T*)GetSingletonInstance(GetCachedTypeName<T>().name, symbolIndex);
+
     public static Il2CppClass* GetClass(string name)
     {
         GameData.TryGetSymbolAddress($"{name}_TypeInfo", out var address);

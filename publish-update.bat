@@ -3,7 +3,7 @@ set OUTPUT=dist
 
 rmdir /s /q %OUTPUT%
 mkdir %OUTPUT%
-dotnet publish %PROJECT% -c Release -r win-x64 -o %OUTPUT%\lib
+dotnet publish %PROJECT% -c Release -r win-x64 --no-self-contained -o %OUTPUT%\lib
 move %OUTPUT%\lib\%PROJECT%* %OUTPUT%
 move %OUTPUT%\lib\ECGen.Generated.dll %OUTPUT%
 rmdir /s /q %OUTPUT%\lib
