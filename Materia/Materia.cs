@@ -17,15 +17,17 @@ internal static class Materia
     public static ImGuiManager? ImGuiManager { get; private set; }
 
     private delegate void BugsnagStartDelegate(nint config, nint method);
-    private static bool systemsInitialized = false;
-    private static IMateriaHook<Action>? playerLoopHook;
     private static readonly HookManager hookManager = new();
+    private static Task stopCrashHandlerTask = null!;
+    private static IMateriaHook<Action>? playerLoopHook;
+    private static bool initializing = false;
+    private static bool systemsInitialized = false;
 
     public static void Initialize()
     {
         try
         {
-            StopCrashHandler();
+            stopCrashHandlerTask = StopCrashHandlerAsync();
 
             if (!GameData.CheckVersion())
             {
@@ -54,6 +56,9 @@ internal static class Materia
     {
         try
         {
+            initializing = true;
+            stopCrashHandlerTask.Wait();
+
             RenderManager = new RenderManager();
             InputManager = new InputManager(RenderManager.SwapChain);
             ImGuiManager = new ImGuiManager();
@@ -66,6 +71,7 @@ internal static class Materia
 
             SigScanner.InjectAttributes(Assembly.GetExecutingAssembly(), hookManager);
             PluginManager.Initialize();
+            initializing = false;
             systemsInitialized = true;
         }
         catch (Exception e)
@@ -96,12 +102,29 @@ internal static class Materia
         PluginManager.Draw();
     }
 
-    private static void StopCrashHandler()
+    private static async Task StopCrashHandlerAsync()
     {
-        const string crashHandlerName = "UnityCrashHandler64";
-        var path = new FileInfo($"{crashHandlerName}.exe").FullName;
-        var process = Process.GetProcessesByName(crashHandlerName).First(p => p.MainModule?.FileName == path);
-        process.Kill(true);
+        while (true)
+        {
+            try
+            {
+                const string crashHandlerName = "UnityCrashHandler64";
+                var path = new FileInfo($"{crashHandlerName}.exe").FullName;
+                var process = Process.GetProcessesByName(crashHandlerName).First(p => p.MainModule?.FileName == path);
+                process.Kill(true);
+                return;
+            }
+            catch (Exception e)
+            {
+                if (!initializing)
+                {
+                    await Task.Delay(200);
+                    continue;
+                }
+
+                FatalError(e);
+            }
+        }
     }
 
     private static unsafe void DisableTelemetry()
