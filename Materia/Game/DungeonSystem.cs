@@ -1,5 +1,3 @@
-using ECGen.Generated;
-
 namespace Materia.Game;
 
 public unsafe class DungeonSystem
@@ -9,14 +7,14 @@ public unsafe class DungeonSystem
     {
         get
         {
-            var ptr = GameInterop.GetSharedMonoBehaviourInstance<Command_Dungeon_DungeonSystem>();
+            var ptr = GameInterop.GetSharedMonoBehaviourInstance<ECGen.Generated.Command.Dungeon.DungeonSystem>();
             if (ptr == null) return null;
             instance.NativePtr = ptr;
             return instance;
         }
     }
 
-    public Command_Dungeon_DungeonSystem* NativePtr { get; private set; }
+    public ECGen.Generated.Command.Dungeon.DungeonSystem* NativePtr { get; private set; }
     public bool IsBattling => NativePtr->encountingBattle->value;
     private DungeonSystem() { }
 }

@@ -1,4 +1,4 @@
-using ECGen.Generated;
+using ECGen.Generated.Command.Dungeon;
 
 namespace Materia.Game;
 
@@ -9,13 +9,13 @@ public unsafe class DungeonHUD
     {
         get
         {
-            var ptr = GameInterop.GetSharedMonoBehaviourInstance<Command_Dungeon_HUD>(1);
+            var ptr = GameInterop.GetSharedMonoBehaviourInstance<HUD>(1);
             if (ptr == null) return null;
             instance.NativePtr = ptr;
             return instance;
         }
     }
 
-    public Command_Dungeon_HUD* NativePtr { get; private set; }
+    public HUD* NativePtr { get; private set; }
     private DungeonHUD() { }
 }

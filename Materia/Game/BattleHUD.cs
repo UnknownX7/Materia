@@ -1,4 +1,4 @@
-using ECGen.Generated;
+using ECGen.Generated.Command.Battle;
 
 namespace Materia.Game;
 
@@ -9,14 +9,14 @@ public unsafe class BattleHUD
     {
         get
         {
-            var ptr = GameInterop.GetSharedMonoBehaviourInstance<Command_Battle_HUD>();
+            var ptr = GameInterop.GetSharedMonoBehaviourInstance<HUD>();
             if (ptr == null) return null;
             instance.NativePtr = ptr;
             return instance;
         }
     }
 
-    public Command_Battle_HUD* NativePtr { get; private set; }
-    public int CurrentStatus => (int)NativePtr->battleStatus->currentKey->value;
+    public HUD* NativePtr { get; private set; }
+    public HUD.Status CurrentStatus => (HUD.Status)(int)NativePtr->battleStatus->currentKey->value;
     private BattleHUD() { }
 }

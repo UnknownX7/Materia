@@ -1,8 +1,6 @@
-using ECGen.Generated;
-
 namespace Materia.Game;
 
 public static unsafe class UISystem
 {
-    public static UISystem_StaticFields* NativePtr { get; } = (UISystem_StaticFields*)GameInterop.GetClass<ECGen.Generated.UISystem>()->static_fields;
+    public static ECGen.Generated.UISystem.StaticFields* NativePtr { get; } = (ECGen.Generated.UISystem.StaticFields*)GameInterop.GetClass<ECGen.Generated.UISystem>()->static_fields;
 }

@@ -1,4 +1,5 @@
 using ECGen.Generated;
+using ECGen.Generated.Command;
 using PInvoke;
 using Materia.Attributes;
 
@@ -13,7 +14,7 @@ public static unsafe class GameInterop
     public static nint GetSharedMonoBehaviourInstance(string name, int symbolIndex = 0)
     {
         if (cachedInstanceStaticFields.TryGetValue(symbolIndex > 0 ? $"{name}_{symbolIndex}" : name, out var staticFields))
-            return staticFields != nint.Zero ? (nint)((Command_SharedMonoBehaviour_T__StaticFields*)staticFields)->instance : nint.Zero;
+            return staticFields != nint.Zero ? (nint)((SharedMonoBehaviour<nint>.StaticFields*)staticFields)->instance : nint.Zero;
 
         if (!GameData.TryGetSymbolAddress(symbolIndex > 0 ? $"Method$Command.SharedMonoBehaviour<{name}>.get_Instance()_{symbolIndex}" : $"Method$Command.SharedMonoBehaviour<{name}>.get_Instance()", out var address))
         {
@@ -24,11 +25,11 @@ public static unsafe class GameInterop
         address = *(nint*)address;
         if ((nuint)address <= uint.MaxValue) return nint.Zero;
 
-        var klass = (Command_SharedMonoBehaviour_T__Class*)((Il2CppMethodInfo*)address)->klass;
-        if ((klass->_2.bitflags1 & 1) == 0) return nint.Zero;
+        var klass = (Il2CppClass<SharedMonoBehaviour<nint>.StaticFields, SharedMonoBehaviour<nint>.RGCTXs, SharedMonoBehaviour<nint>.VirtualTable>*)((Il2CppMethodInfo*)address)->klass;
+        if ((klass->bitflags1 & 1) == 0) return nint.Zero;
 
-        klass = (Command_SharedMonoBehaviour_T__Class*)klass->rgctx_data->Command_SharedMonoBehaviour_T_;
-        if ((klass->_2.bitflags1 & 1) == 0) return nint.Zero;
+        klass = (Il2CppClass<SharedMonoBehaviour<nint>.StaticFields, SharedMonoBehaviour<nint>.RGCTXs, SharedMonoBehaviour<nint>.VirtualTable>*)klass->rgctx_data->Command_SharedMonoBehaviour_T_;
+        if ((klass->bitflags1 & 1) == 0) return nint.Zero;
 
         staticFields = (nint)klass->static_fields;
         cachedInstanceStaticFields[symbolIndex > 0 ? $"{name}_{symbolIndex}" : name] = staticFields;
@@ -36,7 +37,7 @@ public static unsafe class GameInterop
     }
 
     public static T* GetSharedMonoBehaviourInstance<T>(string name, int symbolIndex = 0) where T : unmanaged => (T*)GetSharedMonoBehaviourInstance(name, symbolIndex);
-    public static T* GetSharedMonoBehaviourInstance<T>(int symbolIndex = 0) where T : unmanaged => (T*)GetSharedMonoBehaviourInstance(GetCachedTypeName<T>().name, symbolIndex);
+    public static T* GetSharedMonoBehaviourInstance<T>(int symbolIndex = 0) where T : unmanaged => (T*)GetSharedMonoBehaviourInstance(typeof(T).Name, symbolIndex);
 
     [GameSymbol("Singleton<object>$$get_Instance", Required = true)]
     private static delegate* unmanaged<nint, nint> singletonGetInstance;
@@ -50,7 +51,7 @@ public static unsafe class GameInterop
     public static T* GetSingletonInstance<T>(string name, int symbolIndex = 0) where T : unmanaged => (T*)GetSingletonInstance(name, symbolIndex);
     public static T* GetSingletonInstance<T>(int symbolIndex = 0) where T : unmanaged => (T*)GetSingletonInstance(GetCachedTypeName<T>().name, symbolIndex);
 
-    public static Il2CppClass* GetClass(string name)
+    public static Il2CppClass* GetClass(string name) // TODO: Rework
     {
         GameData.TryGetSymbolAddress($"{name}_TypeInfo", out var address);
         return address != nint.Zero ? *(Il2CppClass**)address : null;

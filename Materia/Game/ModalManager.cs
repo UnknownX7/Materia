@@ -1,5 +1,3 @@
-using ECGen.Generated;
-
 namespace Materia.Game;
 
 public unsafe class ModalManager
@@ -16,7 +14,7 @@ public unsafe class ModalManager
         }
     }
 
-    public Command_UI_ModalManager* NativePtr { get; private set; }
+    public ECGen.Generated.Command.UI.ModalManager* NativePtr { get; private set; }
     public int ModalCount => NativePtr->instancedModalInfos != null ? NativePtr->instancedModalInfos->size : 0;
     public Modal? CurrentModal => ModalCount > 0 ? GetModal(ModalCount - 1) : null;
     public IEnumerable<Modal> CurrentModals
@@ -35,5 +33,5 @@ public unsafe class ModalManager
         return currentModal != null && GameInterop.GetTypeName<T>() == currentModal.TypeName ? currentModal : null;
     }
 
-    private Modal GetModal(int i) => Modal.CreateInstance(NativePtr->instancedModalInfos->Get(i)->modal)!;
+    private Modal GetModal(int i) => Modal.CreateInstance(NativePtr->instancedModalInfos->GetPointer(i)->modal)!;
 }

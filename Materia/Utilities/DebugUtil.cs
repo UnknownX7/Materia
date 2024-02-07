@@ -19,8 +19,8 @@ public static unsafe class DebugUtil
         try
         {
             var klass = isClassType ? (Il2CppClass*)o : ((Il2CppObject*)o)->klass;
-            var type = Util.ReadCString(klass->_1.name);
-            var namespaze = Util.ReadCString(klass->_1.namespaze);
+            var type = Util.ReadCString(klass->name);
+            var namespaze = Util.ReadCString(klass->namespaze);
             return !string.IsNullOrEmpty(namespaze) ? $"{namespaze}.{type}" : type;
         }
         catch
@@ -38,8 +38,8 @@ public static unsafe class DebugUtil
         try
         {
             var klass = isClassType ? (Il2CppClass*)o : ((Il2CppObject*)o)->klass;
-            var fields = klass->_1.fields;
-            for (int i = 0; i < klass->_2.field_count; i++)
+            var fields = klass->fields;
+            for (int i = 0; i < klass->field_count; i++)
             {
                 var field = fields[i];
                 Console.WriteLine($"[{field.offset:X}] {((nint)field.name).ReadCString()}");

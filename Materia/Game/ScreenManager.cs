@@ -16,7 +16,7 @@ public unsafe class ScreenManager
         }
     }
 
-    public Command_UI_ScreenManager* NativePtr { get; private set; }
+    public ECGen.Generated.Command.UI.ScreenManager* NativePtr { get; private set; }
     public Screen? CurrentScreen => Screen.CreateInstance(NativePtr->currentScreen);
     private ScreenManager() { }
 
