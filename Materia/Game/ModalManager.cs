@@ -30,7 +30,7 @@ public unsafe class ModalManager
     public Modal? GetCurrentModal<T>() where T : unmanaged
     {
         var currentModal = CurrentModal;
-        return currentModal != null && GameInterop.GetTypeName<T>() == currentModal.TypeName ? currentModal : null;
+        return currentModal != null && Il2CppType<T>.Is(currentModal.NativePtr) ? currentModal : null;
     }
 
     private Modal GetModal(int i) => Modal.CreateInstance(NativePtr->instancedModalInfos->GetPointer(i)->modal)!;

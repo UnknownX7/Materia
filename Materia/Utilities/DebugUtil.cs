@@ -18,10 +18,10 @@ public static unsafe class DebugUtil
 
         try
         {
-            var klass = isClassType ? (Il2CppClass*)o : ((Il2CppObject*)o)->klass;
-            var type = Util.ReadCString(klass->name);
-            var namespaze = Util.ReadCString(klass->namespaze);
-            return !string.IsNullOrEmpty(namespaze) ? $"{namespaze}.{type}" : type;
+            var @class = isClassType ? (Il2CppClass*)o : ((Il2CppObject*)o)->@class;
+            var type = Util.ReadCString(@class->name);
+            var @namespace = Util.ReadCString(@class->@namespace);
+            return !string.IsNullOrEmpty(@namespace) ? $"{@namespace}.{type}" : type;
         }
         catch
         {
@@ -37,9 +37,9 @@ public static unsafe class DebugUtil
 
         try
         {
-            var klass = isClassType ? (Il2CppClass*)o : ((Il2CppObject*)o)->klass;
-            var fields = klass->fields;
-            for (int i = 0; i < klass->field_count; i++)
+            var @class = isClassType ? (Il2CppClass*)o : ((Il2CppObject*)o)->@class;
+            var fields = @class->fields;
+            for (int i = 0; i < @class->fieldCount; i++)
             {
                 var field = fields[i];
                 Console.WriteLine($"[{field.offset:X}] {((nint)field.name).ReadCString()}");
@@ -64,17 +64,17 @@ public static unsafe class DebugUtil
             }
             else
             {
-                var klassField = typeof(T).GetField("klass");
-                if (klassField == null) return;
+                var classField = typeof(T).GetField("@class");
+                if (classField == null) return;
 
-                var klass = klassField.GetValue(*o);
-                if (klass == null) return;
+                var @class = classField.GetValue(*o);
+                if (@class == null) return;
 
-                var klassType = klassField.FieldType.GetElementType()!;
-                var vtblField = klassType.GetField("vtable");
+                var classType = classField.FieldType.GetElementType()!;
+                var vtblField = classType.GetField("vtable");
                 if (vtblField == null) return;
 
-                vtbl = vtblField.GetValue(Marshal.PtrToStructure((nint)Pointer.Unbox(klass), klassType));
+                vtbl = vtblField.GetValue(Marshal.PtrToStructure((nint)Pointer.Unbox(@class), classType));
             }
 
             if (vtbl == null) return;
@@ -89,7 +89,7 @@ public static unsafe class DebugUtil
                 if (ptr == null) continue;
 
                 var vfName = Util.ReadCString(ptr);
-                Console.WriteLine($"[{virtualInvokeData.methodPtr:X}] {fieldInfo.Name} = {vfName}");
+                Console.WriteLine($"[{virtualInvokeData.methodPointer:X}] {fieldInfo.Name} = {vfName}");
             }
         }
         catch { }

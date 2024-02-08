@@ -184,17 +184,17 @@ public static partial class Util
             }
             else
             {
-                var klassField = typeof(T).GetField("klass");
-                if (klassField == null) return nint.Zero;
+                var classField = typeof(T).GetField("@class");
+                if (classField == null) return nint.Zero;
 
-                var klass = klassField.GetValue(*o);
-                if (klass == null) return nint.Zero;
+                var @class = classField.GetValue(*o);
+                if (@class == null) return nint.Zero;
 
-                var klassType = klassField.FieldType.GetElementType()!;
-                var vtblField = klassType.GetField("vtable");
+                var classType = classField.FieldType.GetElementType()!;
+                var vtblField = classType.GetField("vtable");
                 if (vtblField == null) return nint.Zero;
 
-                vtbl = vtblField.GetValue(Marshal.PtrToStructure((nint)Pointer.Unbox(klass), klassType));
+                vtbl = vtblField.GetValue(Marshal.PtrToStructure((nint)Pointer.Unbox(@class), classType));
             }
 
             if (vtbl == null) return nint.Zero;
@@ -209,7 +209,7 @@ public static partial class Util
                 if (ptr == null) continue;
 
                 var vfName = ReadCString(ptr);
-                if (vfName == name) return virtualInvokeData.methodPtr;
+                if (vfName == name) return virtualInvokeData.methodPointer;
             }
         }
         catch { }

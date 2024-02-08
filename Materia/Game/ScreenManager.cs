@@ -23,6 +23,6 @@ public unsafe class ScreenManager
     public Screen? GetCurrentScreen<T>() where T : unmanaged
     {
         var currentScreen = CurrentScreen;
-        return currentScreen != null && GameInterop.GetTypeName<T>() == currentScreen.TypeName ? currentScreen : null;
+        return currentScreen != null && Il2CppType<T>.Is(currentScreen.NativePtr) ? currentScreen : null;
     }
 }
