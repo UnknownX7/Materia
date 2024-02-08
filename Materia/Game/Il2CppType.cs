@@ -36,7 +36,6 @@ public unsafe class Il2CppType
     public static bool operator !=(Il2CppType t, void* p) => t.Is(p);
     public static bool operator !=(void* p, Il2CppType t) => t.Is(p);
     public bool Is(void* ptr) => ptr != null && *(void**)ptr == NativePtr;
-    public T* As<T>(void* ptr) where T : unmanaged => Is(ptr) ? (T*)ptr : null; // TODO: Inheritance
 }
 
 public static unsafe class Il2CppType<T> where T : unmanaged
@@ -54,5 +53,6 @@ public static unsafe class Il2CppType<T> where T : unmanaged
     }
 
     public static bool Is(void* ptr) => Instance.Is(ptr);
-    public static T* As(void* ptr) => Instance.As<T>(ptr);
+    public static T* As(void* ptr) => Instance.Is(ptr) ? (T*)ptr : null; // TODO: Inheritance
+    public static bool TryAs(void* ptr, out T* cast) => (cast = As(ptr)) != null;
 }
