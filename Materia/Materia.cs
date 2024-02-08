@@ -118,16 +118,19 @@ internal static class Materia
             try
             {
                 const string crashHandlerName = "UnityCrashHandler64";
-                var path = new FileInfo($"{crashHandlerName}.exe").FullName;
-                var process = Process.GetProcessesByName(crashHandlerName).First(p => p.MainModule?.FileName == path);
-                process.Kill(true);
+                var file = new FileInfo($"{crashHandlerName}.exe");
+                if (!file.Exists) return;
+
+                var path = file.FullName;
+                Process.GetProcessesByName(crashHandlerName).First(p => p.MainModule?.FileName == path).Kill();
                 return;
             }
             catch (Exception e)
             {
                 if (!initializing)
                 {
-                    await Task.Delay(200);
+                    await Task.Delay(1000);
+                    Logging.Info("Unable to kill crash handler... trying again");
                     continue;
                 }
 
