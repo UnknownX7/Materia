@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using ECGen.Generated;
 using Materia.Utilities;
 
@@ -6,7 +7,7 @@ namespace Materia.Game;
 #pragma warning disable CS0660, CS0661
 public unsafe class Il2CppType
 {
-    private static readonly Dictionary<nint, Il2CppType> cache = new();
+    private static readonly ConcurrentDictionary<nint, Il2CppType> cache = new();
     internal static Il2CppType WrapPointer(Il2CppClass* ptr)
     {
         var address = (nint)ptr;

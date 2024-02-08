@@ -1,6 +1,8 @@
+using System.Collections.Concurrent;
 using System.Reflection;
 using ECGen.Generated;
 using ECGen.Generated.Command;
+using ECGen.Generated.Command.UI;
 using PInvoke;
 using Materia.Attributes;
 
@@ -9,8 +11,27 @@ namespace Materia.Game;
 [Injection]
 public static unsafe class GameInterop
 {
-    private static readonly Dictionary<Type, nint> cachedTypeInfos = new();
-    private static readonly Dictionary<string, nint> cachedInstanceStaticFields = new();
+    public static bool IsInUpdateThread => Materia.IsUpdateRunning && Materia.CurrentUpdateThreadId == Environment.CurrentManagedThreadId;
+    private static readonly ConcurrentDictionary<Type, nint> cachedTypeInfos = new();
+    private static readonly ConcurrentDictionary<string, nint> cachedInstanceStaticFields = new();
+    private static readonly ConcurrentDictionary<(nint, nint), long> lastPressedButtons = new();
+    private static readonly ConcurrentQueue<Action> onUpdate = new();
+
+    //[Signature("E8 ?? ?? ?? ?? 48 63 CB 48 8D 55 08", ScanType = ScanType.Text)]
+    //private static delegate* unmanaged<int, Il2CppClass*> getTypeInfo;
+
+    [Signature("40 57 48 83 EC 20 0F B6 FA")]
+    private static delegate* unmanaged<int, byte, Il2CppClass*> getTypeInfoFromInstance;
+    internal static Il2CppClass* GetTypeInfo<T>() where T : unmanaged
+    {
+        var type = typeof(T);
+        if (cachedTypeInfos.TryGetValue(type, out var typeInfo)) return (Il2CppClass*)typeInfo;
+        var attribute = type.GetCustomAttribute<Il2CppTypeAttribute>();
+        if (attribute != null)
+            typeInfo = (nint)getTypeInfoFromInstance(attribute.InstanceId, 1);
+        cachedTypeInfos[type] = typeInfo;
+        return (Il2CppClass*)typeInfo;
+    }
 
     public static nint GetSharedMonoBehaviourInstance(string name, int symbolIndex = 0)
     {
@@ -69,20 +90,36 @@ public static unsafe class GameInterop
         processRawInput(&type, &data, 1);
     }
 
-    //[Signature("E8 ?? ?? ?? ?? 48 63 CB 48 8D 55 08", ScanType = ScanType.Text)]
-    //private static delegate* unmanaged<int, Il2CppClass*> getTypeInfo;
-
-    [Signature("40 57 48 83 EC 20 0F B6 FA")]
-    private static delegate* unmanaged<int, byte, Il2CppClass*> getTypeInfoFromInstance;
-    internal static Il2CppClass* GetTypeInfo<T>() where T : unmanaged
+    [GameSymbol("Command.UI.SingleTapButton$$ForceTapSteamUICursor")]
+    private static delegate* unmanaged<void*, nint, void> forceTapSteamUICursor;
+    public static bool TapButton(SingleTapButton* singleTapButton, uint lockoutMs = 2000)
     {
-        var type = typeof(T);
-        if (cachedTypeInfos.TryGetValue(type, out var typeInfo)) return (Il2CppClass*)typeInfo;
-        var attribute = type.GetCustomAttribute<Il2CppTypeAttribute>();
-        if (attribute != null)
-            typeInfo = (nint)getTypeInfoFromInstance(attribute.InstanceId, 1);
-        cachedTypeInfos[type] = typeInfo;
-        return (Il2CppClass*)typeInfo;
+        if (singleTapButton == null || (lastPressedButtons.TryGetValue(((nint)singleTapButton, (nint)singleTapButton->steamUICursorTapSubject), out var timestampMs) && timestampMs > DateTimeOffset.Now.ToUnixTimeMilliseconds())) return false;
+
+        var isSteamKeyAvailable = (delegate* unmanaged<SingleTapButton*, nint, CBool>)singleTapButton->@class->vtable.IsSteamKeyAvailable.methodPointer;
+        if (!isSteamKeyAvailable(singleTapButton, 0)) return false;
+
+        if (lockoutMs > 0)
+            lastPressedButtons[((nint)singleTapButton, (nint)singleTapButton->steamUICursorTapSubject)] = DateTimeOffset.Now.ToUnixTimeMilliseconds() + lockoutMs;
+
+        RunOnUpdate(() => forceTapSteamUICursor(singleTapButton, 0));
+        return true;
+    }
+
+    public static bool TapButton(TintButton* button) => TapButton((SingleTapButton*)button);
+
+    public static void RunOnUpdate(Action action)
+    {
+        if (IsInUpdateThread)
+            action.Invoke();
+        else
+            onUpdate.Enqueue(action);
+    }
+
+    internal static void Update()
+    {
+        while (onUpdate.TryDequeue(out var action))
+            action.Invoke();
     }
 }
 
