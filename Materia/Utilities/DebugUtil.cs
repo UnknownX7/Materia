@@ -94,4 +94,16 @@ public static unsafe class DebugUtil
         }
         catch { }
     }
+
+    public static object Print(object o)
+    {
+        Console.WriteLine(o);
+        return o;
+    }
+
+    public static T* Print<T>(T* ptr) where T : unmanaged
+    {
+        Console.WriteLine($"{(nint)ptr:X}");
+        return ptr;
+    }
 }

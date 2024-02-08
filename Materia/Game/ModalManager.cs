@@ -15,7 +15,7 @@ public unsafe class ModalManager
     }
 
     public ECGen.Generated.Command.UI.ModalManager* NativePtr { get; private set; }
-    public int ModalCount => NativePtr->instancedModalInfos != null ? NativePtr->instancedModalInfos->size : 0;
+    public int ModalCount => NativePtr->instancedModalInfos is var instancedModalInfos && instancedModalInfos != null ? instancedModalInfos->size : 0;
     public Modal? CurrentModal => ModalCount > 0 ? GetModal(ModalCount - 1) : null;
     public IEnumerable<Modal> CurrentModals
     {

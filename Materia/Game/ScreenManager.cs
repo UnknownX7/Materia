@@ -1,5 +1,3 @@
-using ECGen.Generated;
-
 namespace Materia.Game;
 
 public unsafe class ScreenManager
@@ -18,6 +16,7 @@ public unsafe class ScreenManager
 
     public ECGen.Generated.Command.UI.ScreenManager* NativePtr { get; private set; }
     public Screen? CurrentScreen => Screen.CreateInstance(NativePtr->currentScreen);
+    public bool IsBlocking => NativePtr->isBlocking is var isBlocking && isBlocking != null && isBlocking->GetValue();
     private ScreenManager() { }
 
     public Screen? GetCurrentScreen<T>() where T : unmanaged

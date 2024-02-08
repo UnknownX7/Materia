@@ -90,14 +90,20 @@ public static unsafe class GameInterop
         processRawInput(&type, &data, 1);
     }
 
+    [GameSymbol("Command.UI.SingleTapButton$$IsInputBlocked")]
+    private static delegate* unmanaged<SingleTapButton*, nint, bool> isInputBlocked;
+    public static bool CanTapButton(SingleTapButton* singleTapButton) => singleTapButton->steamKeyMapIsActive && !isInputBlocked(singleTapButton, 0) && ScreenManager.Instance is not { IsBlocking: true };
+    public static bool CanTapButton(TintButton* button) => CanTapButton((SingleTapButton*)button);
+
     [GameSymbol("Command.UI.SingleTapButton$$ForceTapSteamUICursor")]
-    private static delegate* unmanaged<void*, nint, void> forceTapSteamUICursor;
+    private static delegate* unmanaged<SingleTapButton*, nint, void> forceTapSteamUICursor;
     public static bool TapButton(SingleTapButton* singleTapButton, uint lockoutMs = 2000)
     {
-        if (singleTapButton == null || (lastPressedButtons.TryGetValue(((nint)singleTapButton, (nint)singleTapButton->steamUICursorTapSubject), out var timestampMs) && timestampMs > DateTimeOffset.Now.ToUnixTimeMilliseconds())) return false;
-
-        var isSteamKeyAvailable = (delegate* unmanaged<SingleTapButton*, nint, CBool>)singleTapButton->@class->vtable.IsSteamKeyAvailable.methodPointer;
-        if (!isSteamKeyAvailable(singleTapButton, 0)) return false;
+        if (singleTapButton == null
+            || (lastPressedButtons.TryGetValue(((nint)singleTapButton, (nint)singleTapButton->steamUICursorTapSubject), out var timestampMs)
+                && timestampMs > DateTimeOffset.Now.ToUnixTimeMilliseconds())
+            || !CanTapButton(singleTapButton))
+            return false;
 
         if (lockoutMs > 0)
             lastPressedButtons[((nint)singleTapButton, (nint)singleTapButton->steamUICursorTapSubject)] = DateTimeOffset.Now.ToUnixTimeMilliseconds() + lockoutMs;
