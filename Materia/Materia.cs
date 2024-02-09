@@ -90,8 +90,8 @@ internal static class Materia
 
             if (!systemsInitialized)
                 InitializeSystems();
-            PluginManager.Update();
             GameInterop.Update();
+            PluginManager.Update();
             playerLoopHook!.Original();
         }
         catch (Exception e)

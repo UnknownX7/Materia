@@ -325,9 +325,9 @@ public sealed unsafe class SigScanner : IDisposable
         var type = memberInfo.GetObjectType()!;
         var hookDelegateType = type.GenericTypeArguments[0];
 
-        if (attribute is GameSymbolAttribute symAttribute && !ValidateDelegate(hookDelegateType, symAttribute.Symbol))
+        if (attribute is GameSymbolAttribute symAttribute && !ValidateDelegate(hookDelegateType, symAttribute.Symbol, symAttribute.ReturnPointer))
         {
-            LogInjectError(memberInfo, $"Symbol \"{symAttribute.Symbol}\" ({GetSymbolTypeSignature(symAttribute.Symbol)}) does not match delegate \"{hookDelegateType.Name}\" ({GetTypeSignature(hookDelegateType)})", attribute.Required);
+            LogInjectError(memberInfo, $"Symbol \"{symAttribute.Symbol}\" ({GetSymbolTypeSignature(symAttribute.Symbol, symAttribute.ReturnPointer)}) does not match delegate \"{hookDelegateType.Name}\" ({GetTypeSignature(hookDelegateType)})", attribute.Required);
             return;
         }
 
@@ -386,11 +386,12 @@ public sealed unsafe class SigScanner : IDisposable
 
     private static string? GetTypeSignature(Type type) => GetTypeSignature(type.GetMethod("Invoke"));
 
-    private static string GetSymbolTypeSignature(string symbol)
+    private static string GetSymbolTypeSignature(string symbol, bool returnPointer)
     {
         try
         {
-            return GameData.GetMethodSymbol(symbol).TypeSignature;
+            var ret = GameData.GetMethodSymbol(symbol).TypeSignature;
+            return returnPointer ? ret.Insert(1, "i") : ret;
         }
         catch
         {
@@ -398,7 +399,7 @@ public sealed unsafe class SigScanner : IDisposable
         }
     }
 
-    public static bool ValidateDelegate(Type delegateType, string symbol) => GetTypeSignature(delegateType) == GetSymbolTypeSignature(symbol);
+    public static bool ValidateDelegate(Type delegateType, string symbol, bool returnPointer) => GetTypeSignature(delegateType) == GetSymbolTypeSignature(symbol, returnPointer);
 
     private static Delegate? GetMethodDelegate(IReflect ownerType, Type delegateType, object? o, string methodName)
     {
