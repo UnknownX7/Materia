@@ -11,7 +11,7 @@ namespace Materia.Game;
 [Injection]
 public static unsafe class GameInterop
 {
-    public static bool IsInUpdateThread => Materia.IsUpdateRunning && Materia.CurrentUpdateThreadId == Environment.CurrentManagedThreadId;
+    public static bool IsInUpdateThread => Environment.CurrentManagedThreadId == Materia.CurrentUpdateThreadId;
     private static readonly ConcurrentDictionary<Type, nint> cachedTypeInfos = new();
     private static readonly ConcurrentDictionary<string, nint> cachedInstanceStaticFields = new();
     private static readonly ConcurrentDictionary<(nint, nint), long> lastPressedButtons = new();
@@ -112,7 +112,7 @@ public static unsafe class GameInterop
         return true;
     }
 
-    public static bool TapButton(TintButton* button) => TapButton((SingleTapButton*)button);
+    public static bool TapButton(TintButton* button, uint lockoutMs = 2000) => TapButton((SingleTapButton*)button, lockoutMs);
 
     public static void RunOnUpdate(Action action)
     {

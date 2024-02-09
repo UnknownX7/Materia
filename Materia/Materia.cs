@@ -15,8 +15,7 @@ internal static class Materia
     public static RenderManager? RenderManager { get; private set; }
     public static InputManager? InputManager { get; private set; }
     public static ImGuiManager? ImGuiManager { get; private set; }
-    internal static bool IsUpdateRunning { get; private set; }
-    internal static int CurrentUpdateThreadId { get; private set; }
+    internal static int? CurrentUpdateThreadId { get; private set; }
 
     private delegate void BugsnagStartDelegate(nint config, nint method);
     private static readonly HookManager hookManager = new();
@@ -85,7 +84,6 @@ internal static class Materia
     public static void Update()
     {
         CurrentUpdateThreadId = Environment.CurrentManagedThreadId;
-        IsUpdateRunning = true;
 
         try
         {
@@ -101,7 +99,7 @@ internal static class Materia
             Logging.Error(e);
         }
 
-        IsUpdateRunning = false;
+        CurrentUpdateThreadId = null;
     }
 
     public static void Draw()

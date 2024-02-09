@@ -1,3 +1,6 @@
+using ECGen.Generated.Command.UI;
+using ECGen.Generated;
+
 namespace Materia.Game;
 
 public unsafe class ModalManager
@@ -16,8 +19,8 @@ public unsafe class ModalManager
 
     public ECGen.Generated.Command.UI.ModalManager* NativePtr { get; private set; }
     public int ModalCount => NativePtr->instancedModalInfos is var instancedModalInfos && instancedModalInfos != null ? instancedModalInfos->size : 0;
-    public Modal? CurrentModal => ModalCount > 0 ? GetModal(ModalCount - 1) : null;
-    public IEnumerable<Modal> CurrentModals
+    public Modal<ModalBase<Il2CppObject>>? CurrentModal => ModalCount > 0 ? GetModal<ModalBase<Il2CppObject>>(ModalCount - 1) : null;
+    public IEnumerable<Modal<ModalBase<Il2CppObject>>> CurrentModals
     {
         get
         {
@@ -27,11 +30,12 @@ public unsafe class ModalManager
     }
     private ModalManager() { }
 
-    public Modal? GetCurrentModal<T>() where T : unmanaged
+    public Modal<T>? GetCurrentModal<T>() where T : unmanaged
     {
-        var currentModal = CurrentModal;
-        return currentModal != null && Il2CppType<T>.Is(currentModal.NativePtr) ? currentModal : null;
+        var currentModal = ModalCount > 0 ? NativePtr->instancedModalInfos->GetPointer(ModalCount - 1)->modal : null;
+        return Il2CppType<T>.Is(currentModal) ? Modal<T>.CreateInstance(currentModal) : null;
     }
 
-    private Modal GetModal(int i) => Modal.CreateInstance(NativePtr->instancedModalInfos->GetPointer(i)->modal)!;
+    private Modal<T> GetModal<T>(int i) where T : unmanaged => Modal<T>.CreateInstance(NativePtr->instancedModalInfos->GetPointer(i)->modal)!;
+    private Modal<ModalBase<Il2CppObject>> GetModal(int i) => GetModal<ModalBase<Il2CppObject>>(i);
 }
