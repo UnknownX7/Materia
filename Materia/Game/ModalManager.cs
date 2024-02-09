@@ -1,5 +1,5 @@
-using ECGen.Generated.Command.UI;
 using ECGen.Generated;
+using ECGen.Generated.Command.UI;
 
 namespace Materia.Game;
 

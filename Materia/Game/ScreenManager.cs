@@ -17,7 +17,7 @@ public unsafe class ScreenManager
     }
 
     public ECGen.Generated.Command.UI.ScreenManager* NativePtr { get; private set; }
-    public Screen<ScreenBase<nint>>? CurrentScreen => Screen<ScreenBase<nint>>.CreateInstance(NativePtr->currentScreen);
+    public Screen<ScreenBase<ScreenSetupParameter>>? CurrentScreen => Screen<ScreenBase<ScreenSetupParameter>>.CreateInstance(NativePtr->currentScreen);
     public bool IsBlocking => NativePtr->isBlocking is var isBlocking && isBlocking != null && isBlocking->GetValue();
     private ScreenManager() { }
 
