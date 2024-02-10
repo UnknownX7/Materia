@@ -89,7 +89,7 @@ public static unsafe class DebugUtil
                 if (ptr == null) continue;
 
                 var vfName = Util.ReadCString(ptr);
-                Console.WriteLine($"[{virtualInvokeData.methodPointer:X}] {fieldInfo.Name} = {vfName}");
+                Console.WriteLine($"[{virtualInvokeData.methodPtr:X}] {fieldInfo.Name} = {vfName}");
             }
         }
         catch { }

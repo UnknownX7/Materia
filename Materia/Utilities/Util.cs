@@ -209,7 +209,7 @@ public static partial class Util
                 if (ptr == null) continue;
 
                 var vfName = ReadCString(ptr);
-                if (vfName == name) return virtualInvokeData.methodPointer;
+                if (vfName == name) return virtualInvokeData.methodPtr;
             }
         }
         catch { }
