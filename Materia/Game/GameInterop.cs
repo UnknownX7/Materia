@@ -20,7 +20,7 @@ public static unsafe class GameInterop
     //[Signature("E8 ?? ?? ?? ?? 48 63 CB 48 8D 55 08", ScanType = ScanType.Text)]
     //private static delegate* unmanaged<int, Il2CppClass*> getTypeInfo;
 
-    [Signature("40 57 48 83 EC 20 0F B6 FA")]
+    [Signature("40 57 48 83 EC 20 0F B6 FA", Required = true)]
     private static delegate* unmanaged<int, byte, Il2CppClass*> getTypeInfoFromInstance;
     internal static Il2CppClass* GetTypeInfo<T>() where T : unmanaged
     {
@@ -32,6 +32,13 @@ public static unsafe class GameInterop
         cachedTypeInfos[type] = typeInfo;
         return (Il2CppClass*)typeInfo;
     }
+
+    [Signature("E8 ?? ?? ?? ?? 48 89 70 10", ScanType = ScanType.Text, Required = true)]
+    internal static delegate* unmanaged<Il2CppClass*, void*> il2cppObjectNew;
+    [Signature("0F B6 C2 4C 8B C9 45 33 C0", Required = true)]
+    internal static delegate* unmanaged<void*, byte, uint> il2cppGCHandleNew;
+    [Signature("48 89 6C 24 ?? 57 48 83 EC 20 8B E9", Required = true)]
+    internal static delegate* unmanaged<uint, void> il2cppGCHandleFree;
 
     public static nint GetSharedMonoBehaviourInstance(string name, int symbolIndex = 0)
     {

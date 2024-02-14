@@ -51,6 +51,7 @@ public static unsafe class Il2CppType<T> where T : unmanaged
             return instance = Il2CppType.WrapPointer(ptr);
         }
     }
+    public static Il2CppClass* NativePtr => Instance.NativePtr;
 
     public static bool Is(void* ptr) => Instance.Is(ptr);
     public static T* As(void* ptr) => Instance.Is(ptr) ? (T*)ptr : null; // TODO: Inheritance
