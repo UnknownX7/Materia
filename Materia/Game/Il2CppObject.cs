@@ -5,10 +5,11 @@ public unsafe class Il2CppObject<T> : IDisposable where T : unmanaged
     private readonly uint gcHandle;
     public T* Ptr { get; }
 
-    public Il2CppObject()
+    public Il2CppObject(bool managed = false)
     {
         Ptr = (T*)GameInterop.il2cppObjectNew(Il2CppType<T>.NativePtr);
-        gcHandle = GameInterop.il2cppGCHandleNew(Ptr, 1);
+        if (managed)
+            gcHandle = GameInterop.il2cppGCHandleNew(Ptr, 0);
     }
 
     public override string ToString() => $"{(nint)Ptr:X}<{typeof(T)}>";
