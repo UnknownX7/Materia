@@ -7,7 +7,7 @@ public unsafe class Il2CppObject<T> : IDisposable where T : unmanaged
 
     public Il2CppObject(bool managed = false)
     {
-        Ptr = (T*)GameInterop.il2cppObjectNew(Il2CppType<T>.NativePtr);
+        Ptr = (T*)GameInterop.NewIl2CppObject(Il2CppType<T>.NativePtr);
         if (managed)
             gcHandle = new Il2CppGCHandle(Ptr);
     }

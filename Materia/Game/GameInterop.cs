@@ -34,11 +34,24 @@ public static unsafe class GameInterop
     }
 
     [Signature("E8 ?? ?? ?? ?? 48 89 70 10", ScanType = ScanType.Text, Required = true)]
-    internal static delegate* unmanaged<Il2CppClass*, void*> il2cppObjectNew;
+    private static delegate* unmanaged<Il2CppClass*, void*> il2cppObjectNew;
+    internal static void* NewIl2CppObject(Il2CppClass* @class) => il2cppObjectNew(@class);
+
     [Signature("0F B6 C2 4C 8B C9 45 33 C0", Required = true)]
-    internal static delegate* unmanaged<void*, byte, uint> il2cppGCHandleNew;
+    private static delegate* unmanaged<void*, byte, uint> il2cppGCHandleNew;
+    internal static uint NewIl2CppGCHandle(void* ptr, bool pinned) => il2cppGCHandleNew(ptr, (byte)(pinned ? 1 : 0));
+
     [Signature("48 89 6C 24 ?? 57 48 83 EC 20 8B E9", Required = true)]
-    internal static delegate* unmanaged<uint, void> il2cppGCHandleFree;
+    private static delegate* unmanaged<uint, void> il2cppGCHandleFree;
+    internal static void FreeIl2CppGCHandle(uint handle) => il2cppGCHandleFree(handle);
+
+    [Signature("E8 ?? ?? ?? ?? 0F B6 F8 EB 5D", ScanType = ScanType.Text, Required = true)]
+    private static delegate* unmanaged<Il2CppClass*, Il2CppClass*, byte, byte> il2cppClassIsSubclassOf;
+    internal static bool IsIl2CppClassSubclassOf(Il2CppClass* @class, Il2CppClass* otherClass) => il2cppClassIsSubclassOf(@class, otherClass, 0) != 0;
+
+    [Signature("E8 ?? ?? ?? ?? 0F B6 F8 EB 5D", ScanType = ScanType.Text, Required = true)]
+    private static delegate* unmanaged<Il2CppClass*, Il2CppClass*, byte> il2cppClassIsAssignableFrom;
+    internal static bool IsIl2CppClassAssignableFrom(Il2CppClass* @class, Il2CppClass* otherClass) => il2cppClassIsAssignableFrom(otherClass, @class) != 0; // Backwards?
 
     public static nint GetSharedMonoBehaviourInstance(string name, int symbolIndex = 0)
     {
@@ -54,7 +67,7 @@ public static unsafe class GameInterop
         address = *(nint*)address;
         if ((nuint)address <= uint.MaxValue) return nint.Zero;
 
-        var @class = (Il2CppClass<SharedMonoBehaviour<nint>.StaticFields, SharedMonoBehaviour<nint>.RGCTXs, SharedMonoBehaviour<nint>.VirtualTable>*)((Il2CppMethodInfo*)address)->@class;
+        var @class = (Il2CppClass<SharedMonoBehaviour<nint>.StaticFields, SharedMonoBehaviour<nint>.RGCTXs, SharedMonoBehaviour<nint>.VirtualTable>*)((Il2CppMethodInfo*)address)->parent;
         if ((@class->bitflags1 & 1) == 0) return nint.Zero;
 
         @class = (Il2CppClass<SharedMonoBehaviour<nint>.StaticFields, SharedMonoBehaviour<nint>.RGCTXs, SharedMonoBehaviour<nint>.VirtualTable>*)@class->rgctx->Command_SharedMonoBehaviour_T_;
