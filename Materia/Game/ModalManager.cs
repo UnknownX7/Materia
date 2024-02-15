@@ -33,7 +33,7 @@ public unsafe class ModalManager
     public Modal<T>? GetCurrentModal<T>() where T : unmanaged
     {
         var currentModal = ModalCount > 0 ? NativePtr->instancedModalInfos->GetPtr(ModalCount - 1)->modal : null;
-        return Il2CppType<T>.Is(currentModal) ? Modal<T>.CreateInstance(currentModal) : null;
+        return Il2CppType<T>.Instance == currentModal ? Modal<T>.CreateInstance(currentModal) : null;
     }
 
     private Modal<T> GetModal<T>(int i) where T : unmanaged => Modal<T>.CreateInstance(NativePtr->instancedModalInfos->GetPtr(i)->modal)!;

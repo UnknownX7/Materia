@@ -24,6 +24,6 @@ public unsafe class ScreenManager
     public Screen<T>? GetCurrentScreen<T>() where T : unmanaged
     {
         var currentScreen = NativePtr->currentScreen;
-        return Il2CppType<T>.Is(currentScreen) ? Screen<T>.CreateInstance(currentScreen) : null;
+        return Il2CppType<T>.Instance == currentScreen ? Screen<T>.CreateInstance(currentScreen) : null;
     }
 }

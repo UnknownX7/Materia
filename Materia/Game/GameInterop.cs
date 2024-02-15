@@ -20,20 +20,20 @@ public static unsafe class GameInterop
     //[Signature("E8 ?? ?? ?? ?? 48 63 CB 48 8D 55 08", ScanType = ScanType.Text)]
     //private static delegate* unmanaged<int, Il2CppClass*> getTypeInfo;
 
-    [Signature("40 57 48 83 EC 20 0F B6 FA", Required = true)]
-    private static delegate* unmanaged<int, byte, Il2CppClass*> getTypeInfoFromInstance;
+    [Signature("E8 ?? ?? ?? ?? 48 8B C8 48 89 07", ScanType = ScanType.Text, Required = true)] // 8B CA B2 01 E9
+    private static delegate* unmanaged<nint, int, Il2CppClass*> getTypeInfoFromInstance;
     internal static Il2CppClass* GetTypeInfo<T>() where T : unmanaged
     {
         var type = typeof(T);
         if (cachedTypeInfos.TryGetValue(type, out var typeInfo)) return (Il2CppClass*)typeInfo;
         var attribute = type.GetCustomAttribute<Il2CppTypeAttribute>();
         if (attribute != null)
-            typeInfo = (nint)getTypeInfoFromInstance(attribute.InstanceId, 1);
+            typeInfo = (nint)getTypeInfoFromInstance(0, attribute.InstanceId);
         cachedTypeInfos[type] = typeInfo;
         return (Il2CppClass*)typeInfo;
     }
 
-    [Signature("E8 ?? ?? ?? ?? 48 89 70 10", ScanType = ScanType.Text, Required = true)]
+    [Signature("E8 ?? ?? ?? ?? 48 8B 4C 24 ?? 48 8B D8 48 8B 51 20", ScanType = ScanType.Text, Required = true)] // E8 ?? ?? ?? ?? 48 8B D7 48 8B C8 48 8B D8 E8 ?? ?? ?? ??
     private static delegate* unmanaged<Il2CppClass*, void*> il2cppObjectNew;
     internal static void* NewIl2CppObject(Il2CppClass* @class) => il2cppObjectNew(@class);
 
@@ -41,17 +41,17 @@ public static unsafe class GameInterop
     private static delegate* unmanaged<void*, byte, uint> il2cppGCHandleNew;
     internal static uint NewIl2CppGCHandle(void* ptr, bool pinned) => il2cppGCHandleNew(ptr, (byte)(pinned ? 1 : 0));
 
-    [Signature("48 89 6C 24 ?? 57 48 83 EC 20 8B E9", Required = true)]
-    private static delegate* unmanaged<uint, void> il2cppGCHandleFree;
-    internal static void FreeIl2CppGCHandle(uint handle) => il2cppGCHandleFree(handle);
+    [GameSymbol("System.Runtime.InteropServices.GCHandle$$FreeHandle", Required = true)]
+    private static delegate* unmanaged<nint, nint, void> il2cppGCHandleFree;
+    internal static void FreeIl2CppGCHandle(uint handle) => il2cppGCHandleFree((nint)handle, 0);
 
-    [Signature("E8 ?? ?? ?? ?? 0F B6 F8 EB 5D", ScanType = ScanType.Text, Required = true)]
+    [Signature("E8 ?? ?? ?? ?? 0F B6 F8 EB 0B", ScanType = ScanType.Text, Required = true)] // 48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 41 0F B6 D8 48 8B F2 48 8B F9 E8
     private static delegate* unmanaged<Il2CppClass*, Il2CppClass*, byte, byte> il2cppClassIsSubclassOf;
     internal static bool IsIl2CppClassSubclassOf(Il2CppClass* @class, Il2CppClass* otherClass) => il2cppClassIsSubclassOf(@class, otherClass, 0) != 0;
 
-    [Signature("E8 ?? ?? ?? ?? 0F B6 F8 EB 5D", ScanType = ScanType.Text, Required = true)]
+    [Signature("E8 ?? ?? ?? ?? 84 C0 75 2D 4C 8D 4C 24", ScanType = ScanType.Text, Required = true)]
     private static delegate* unmanaged<Il2CppClass*, Il2CppClass*, byte> il2cppClassIsAssignableFrom;
-    internal static bool IsIl2CppClassAssignableFrom(Il2CppClass* @class, Il2CppClass* otherClass) => il2cppClassIsAssignableFrom(otherClass, @class) != 0; // Backwards?
+    internal static bool IsIl2CppClassAssignableFrom(Il2CppClass* @class, Il2CppClass* otherClass) => il2cppClassIsAssignableFrom(@class, otherClass) != 0;
 
     public static nint GetSharedMonoBehaviourInstance(string name, int symbolIndex = 0)
     {
