@@ -30,12 +30,21 @@ public unsafe class ModalManager
     }
     private ModalManager() { }
 
+    public Modal<T>? GetModal<T>() where T : unmanaged
+    {
+        var il2CppType = Il2CppType<T>.Instance;
+        var modal = CurrentModals.LastOrDefault(m => il2CppType == m.NativePtr);
+        return modal != null ? Modal<T>.CreateInstance((IModal*)modal.NativePtr) : null;
+    }
+
     public Modal<T>? GetCurrentModal<T>() where T : unmanaged
     {
         var currentModal = ModalCount > 0 ? NativePtr->instancedModalInfos->GetPtr(ModalCount - 1)->modal : null;
         return Il2CppType<T>.Instance == currentModal ? Modal<T>.CreateInstance(currentModal) : null;
     }
 
+    public bool IsModalOpen<T>() where T : unmanaged => GetModal<T>() != null;
+    public bool IsCurrentModal<T>() where T : unmanaged => GetCurrentModal<T>() != null;
     private Modal<T> GetModal<T>(int i) where T : unmanaged => Modal<T>.CreateInstance(NativePtr->instancedModalInfos->GetPtr(i)->modal)!;
     private Modal<ModalBase<Il2CppObject>> GetModal(int i) => GetModal<ModalBase<Il2CppObject>>(i);
 }

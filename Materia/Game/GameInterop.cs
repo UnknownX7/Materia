@@ -1,7 +1,9 @@
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Reflection;
 using ECGen.Generated;
 using ECGen.Generated.Command;
+using ECGen.Generated.Command.KeyInput;
 using ECGen.Generated.Command.UI;
 using PInvoke;
 using Materia.Attributes;
@@ -16,6 +18,7 @@ public static unsafe class GameInterop
     private static readonly ConcurrentDictionary<string, nint> cachedInstanceStaticFields = new();
     private static readonly ConcurrentDictionary<(nint, nint), long> lastPressedButtons = new();
     private static readonly ConcurrentQueue<Action> onUpdate = new();
+    private static readonly List<(Action, Stopwatch, TimeSpan)> delayedOnUpdate = new();
 
     //[Signature("E8 ?? ?? ?? ?? 48 63 CB 48 8D 55 08", ScanType = ScanType.Text)]
     //private static delegate* unmanaged<int, Il2CppClass*> getTypeInfo;
@@ -117,7 +120,7 @@ public static unsafe class GameInterop
 
     [GameSymbol("Command.UI.SingleTapButton$$ForceTapSteamUICursor")]
     private static delegate* unmanaged<SingleTapButton*, nint, void> forceTapSteamUICursor;
-    public static bool TapButton(SingleTapButton* singleTapButton, uint lockoutMs = 2000)
+    public static bool TapButton(SingleTapButton* singleTapButton, uint lockoutMs = 2000, uint delayMS = 0) // TODO: Ensure the button still exists when delayed
     {
         if (singleTapButton == null
             || (lastPressedButtons.TryGetValue(((nint)singleTapButton, (nint)singleTapButton->steamUICursorTapSubject), out var timestampMs)
@@ -125,14 +128,33 @@ public static unsafe class GameInterop
             || !CanTapButton(singleTapButton))
             return false;
 
-        if (lockoutMs > 0)
-            lastPressedButtons[((nint)singleTapButton, (nint)singleTapButton->steamUICursorTapSubject)] = DateTimeOffset.Now.ToUnixTimeMilliseconds() + lockoutMs;
+        if (lockoutMs > 0 || delayMS > 0)
+            lastPressedButtons[((nint)singleTapButton, (nint)singleTapButton->steamUICursorTapSubject)] = DateTimeOffset.Now.ToUnixTimeMilliseconds() + lockoutMs + delayMS;
 
-        RunOnUpdate(() => forceTapSteamUICursor(singleTapButton, 0));
+        if (delayMS > 0)
+            RunOnUpdate(() => forceTapSteamUICursor(singleTapButton, 0), delayMS);
+        else
+            RunOnUpdate(() => forceTapSteamUICursor(singleTapButton, 0));
         return true;
     }
 
-    public static bool TapButton(TintButton* button, uint lockoutMs = 2000) => TapButton((SingleTapButton*)button, lockoutMs);
+    public static bool TapButton(TintButton* button, uint lockoutMs = 2000, uint delayMS = 0) => TapButton((SingleTapButton*)button, lockoutMs, delayMS);
+
+    public static bool TapKeyAction(KeyAction keyAction, uint lockoutMs = 2000, uint delayMS = 0)
+    {
+        var ret = false;
+        if (GetSingletonInstance<KeyMapManager>() is var keyMapManager && (keyMapManager == null || keyMapManager->keyMaps->size == 0)) return ret;
+
+        var keyMap = keyMapManager->keyMaps->GetPtr(keyMapManager->keyMaps->size - 1);
+        for (int i = 0; i < keyMap->keyHandlers->size; i++)
+        {
+            if (!Il2CppType<SingleTapButton>.Is(keyMap->keyHandlers->GetPtr(i), out var singleTapButton)) continue;
+            var buttonKeyAction = singleTapButton->steamKeyAction != KeyAction.None ? singleTapButton->steamKeyAction : singleTapButton->steamKeyActionDefault;
+            if (buttonKeyAction == keyAction || buttonKeyAction == KeyAction.Any)
+                ret |= TapButton(singleTapButton, lockoutMs, delayMS);
+        }
+        return ret;
+    }
 
     public static void RunOnUpdate(Action action)
     {
@@ -142,10 +164,29 @@ public static unsafe class GameInterop
             onUpdate.Enqueue(action);
     }
 
+    public static void RunOnUpdate(Action action, TimeSpan delay)
+    {
+        lock (delayedOnUpdate)
+            delayedOnUpdate.Add((action, Stopwatch.StartNew(), delay));
+    }
+
+    public static void RunOnUpdate(Action action, uint delayMs) => RunOnUpdate(action, TimeSpan.FromMilliseconds(delayMs));
+
     internal static void Update()
     {
         while (onUpdate.TryDequeue(out var action))
             action.Invoke();
+
+        lock (delayedOnUpdate)
+        {
+            for (int i = 0; i < delayedOnUpdate.Count; i++)
+            {
+                var (action, stopwatch, delay) = delayedOnUpdate[i];
+                if (stopwatch.Elapsed < delay) continue;
+                action.Invoke();
+                delayedOnUpdate.RemoveAt(i--);
+            }
+        }
     }
 }
 
