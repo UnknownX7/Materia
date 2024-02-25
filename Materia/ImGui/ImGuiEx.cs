@@ -283,4 +283,7 @@ public static partial class ImGuiEx
             drawList.AddText(pos, color - alphaReduction, text);
         }, timerMS);
     }
+
+    public static void AddVerticalLine(Vector2 pos, uint col = 0xFFFFFFFF) => ImGui.GetWindowDrawList().AddLine(pos, pos with { Y = ImGui.GetWindowPos().Y + ImGui.GetWindowContentRegionMax().Y }, col);
+    public static Vector2 GetItemRectPosPercent(Vector2 percent) => ImGui.GetItemRectMin() + ImGui.GetItemRectSize() * percent;
 }
