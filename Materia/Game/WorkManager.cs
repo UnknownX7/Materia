@@ -91,6 +91,7 @@ public static unsafe class WorkManager
     public static PartyWork.PartyGroupStore* GetPartyGroupStore(long id) => NativePtr != null && getOrCreatePartyGroupStore != null ? getOrCreatePartyGroupStore(NativePtr->party, id, 0) : null;
     public static PartyWork.PartyStore* GetPartyStore(long id, bool createDefault) => NativePtr != null && getOrCreatePartyStore != null ? getOrCreatePartyStore(NativePtr->party, id, createDefault, 0) : null;
     public static PartyWork.PartyCharacterStore* GetPartyCharacterStore(long partyMemberId, long idx, bool createDefault) => NativePtr != null && getOrCreatePartyCharacterStore != null ? getOrCreatePartyCharacterStore(NativePtr->party, partyMemberId, idx, createDefault, 0) : null;
+    public static PartyCharacterInfo* GetStatusParamInfo(PartyCharacterInfo* info) => NativePtr != null && getStatusParamInfo != null ? getStatusParamInfo(NativePtr->party, info, 0) : null;
 
     public static RewardWork.ConsumptionSetConsumptionRelStore* GetConsumptionSetConsumptionRelStore(long id) => NativePtr != null && getOrCreateConsumptionSetConsumptionRelStore != null ? getOrCreateConsumptionSetConsumptionRelStore(NativePtr->reward, id, 0) : null;
     public static RewardWork.RewardSetRewardRelStore* GetRewardSetRewardRelStore(long id) => NativePtr != null && getOrCreateRewardSetRewardRelStore != null ? getOrCreateRewardSetRewardRelStore(NativePtr->reward, id, 0) : null;
@@ -291,6 +292,8 @@ public static unsafe class WorkManager
     private static delegate* unmanaged<PartyWork*, long, bool, nint, PartyWork.PartyStore*> getOrCreatePartyStore;
     [GameSymbol("Command.Work.PartyWork$$GetOrCreatePartyCharacterStore")]
     private static delegate* unmanaged<PartyWork*, long, long, bool, nint, PartyWork.PartyCharacterStore*> getOrCreatePartyCharacterStore;
+    [GameSymbol("Command.Work.PartyWork$$GetStatusParamInfo")]
+    private static delegate* unmanaged<PartyWork*, PartyCharacterInfo*, nint, PartyCharacterInfo*> getStatusParamInfo;
 
     [GameSymbol("Command.Work.RewardWork$$GetOrCreateConsumptionSetConsumptionRelStore")]
     private static delegate* unmanaged<RewardWork*, long, nint, RewardWork.ConsumptionSetConsumptionRelStore*> getOrCreateConsumptionSetConsumptionRelStore;
