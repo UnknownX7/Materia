@@ -115,7 +115,7 @@ public static unsafe class GameInterop
 
     [GameSymbol("Command.UI.SingleTapButton$$IsInputBlocked")]
     private static delegate* unmanaged<SingleTapButton*, nint, bool> isInputBlocked;
-    public static bool CanTapButton(SingleTapButton* singleTapButton) => singleTapButton->steamKeyMapIsActive && !isInputBlocked(singleTapButton, 0) && ScreenManager.Instance is not { IsBlocking: true };
+    public static bool CanTapButton(SingleTapButton* singleTapButton) => singleTapButton->canTap && !isInputBlocked(singleTapButton, 0) && ScreenManager.Instance is not { IsBlocking: true };
     public static bool CanTapButton(TintButton* button) => CanTapButton((SingleTapButton*)button);
 
     [GameSymbol("Command.UI.SingleTapButton$$ForceTapSteamUICursor")]
