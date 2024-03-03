@@ -1,3 +1,4 @@
+using ECGen.Generated.Command.Enums;
 using ECGen.Generated.Command.Work;
 using Materia.Attributes;
 
@@ -92,6 +93,21 @@ public static unsafe class WorkManager
     public static PartyWork.PartyStore* GetPartyStore(long id, bool createDefault) => NativePtr != null && getOrCreatePartyStore != null ? getOrCreatePartyStore(NativePtr->party, id, createDefault, 0) : null;
     public static PartyWork.PartyCharacterStore* GetPartyCharacterStore(long partyMemberId, long idx, bool createDefault) => NativePtr != null && getOrCreatePartyCharacterStore != null ? getOrCreatePartyCharacterStore(NativePtr->party, partyMemberId, idx, createDefault, 0) : null;
     public static PartyCharacterInfo* GetStatusParamInfo(PartyCharacterInfo* info) => NativePtr != null && getStatusParamInfo != null ? getStatusParamInfo(NativePtr->party, info, 0) : null;
+
+    public static ResetWork.ResetStore* GetResetStore(long id) => NativePtr != null && getOrCreateResetStore != null ? getOrCreateResetStore(NativePtr->reset, id, 0) : null;
+    public static TimeSpan GetTimeUntilReset(long resetId)
+    {
+        if (NativePtr == null || getRemainingMillSecond == null) return TimeSpan.Zero;
+
+        var resetStore = GetResetStore(resetId);
+        if (resetStore == null || resetStore->cycleType != ConditionCycleType.Month) return TimeSpan.FromMilliseconds(getRemainingMillSecond(NativePtr->reset, resetId, 0));
+
+        // TODO: Fix
+        var utcNow = DateTimeOffset.UtcNow;
+        var offsetUtcNow = utcNow.AddMilliseconds(-resetStore->masterReset->resetOffsetDatetime);
+        var nextMonth = new DateTimeOffset(offsetUtcNow.Year, offsetUtcNow.Month + 1, 1, 0, 0, 0, TimeSpan.Zero).AddMilliseconds(resetStore->masterReset->resetOffsetDatetime);
+        return nextMonth - utcNow;
+    }
 
     public static RewardWork.ConsumptionSetConsumptionRelStore* GetConsumptionSetConsumptionRelStore(long id) => NativePtr != null && getOrCreateConsumptionSetConsumptionRelStore != null ? getOrCreateConsumptionSetConsumptionRelStore(NativePtr->reward, id, 0) : null;
     public static RewardWork.RewardSetRewardRelStore* GetRewardSetRewardRelStore(long id) => NativePtr != null && getOrCreateRewardSetRewardRelStore != null ? getOrCreateRewardSetRewardRelStore(NativePtr->reward, id, 0) : null;
@@ -294,6 +310,11 @@ public static unsafe class WorkManager
     private static delegate* unmanaged<PartyWork*, long, long, bool, nint, PartyWork.PartyCharacterStore*> getOrCreatePartyCharacterStore;
     [GameSymbol("Command.Work.PartyWork$$GetStatusParamInfo")]
     private static delegate* unmanaged<PartyWork*, PartyCharacterInfo*, nint, PartyCharacterInfo*> getStatusParamInfo;
+
+    [GameSymbol("Command.Work.ResetWork$$GetOrCreateResetStore")]
+    private static delegate* unmanaged<ResetWork*, long, nint, ResetWork.ResetStore*> getOrCreateResetStore;
+    [GameSymbol("Command.Work.ResetWork$$GetRemainingMillSecond")]
+    private static delegate* unmanaged<ResetWork*, long, nint, long> getRemainingMillSecond;
 
     [GameSymbol("Command.Work.RewardWork$$GetOrCreateConsumptionSetConsumptionRelStore")]
     private static delegate* unmanaged<RewardWork*, long, nint, RewardWork.ConsumptionSetConsumptionRelStore*> getOrCreateConsumptionSetConsumptionRelStore;
