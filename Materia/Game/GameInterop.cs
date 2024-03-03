@@ -116,13 +116,13 @@ public static unsafe class GameInterop
     private static delegate* unmanaged<GameObject*, CBool, nint, void> gameObjectSetActive;
     [GameSymbol("Command.Extensions$$SetActive")]
     private static delegate* unmanaged<Component*, CBool, nint, void> componentSetActive;
-    public static void SetGameObjectActive(void* obj, bool value)
+    public static void SetGameObjectActive(void* obj, bool active)
     {
         if (obj == null) return;
         if (Il2CppType<GameObject>.IsAssignableFrom(obj))
-            RunOnUpdate(() => gameObjectSetActive((GameObject*)obj, value, 0));
+            RunOnUpdate(() => gameObjectSetActive((GameObject*)obj, active, 0));
         else if (Il2CppType<Component>.IsAssignableFrom(obj))
-            RunOnUpdate(() => componentSetActive((Component*)obj, value, 0));
+            RunOnUpdate(() => componentSetActive((Component*)obj, active, 0));
     }
 
     public static void SendKey(ushort vKey, int ms = 100) => GameInteropHelpers.RunSendKeyTask(SendKeyInternal, vKey, ms);
@@ -144,32 +144,39 @@ public static unsafe class GameInterop
 
     [GameSymbol("Command.UI.SingleTapButton$$IsInputBlocked")]
     private static delegate* unmanaged<SingleTapButton*, nint, CBool> isInputBlocked;
-    public static bool CanTapButton(SingleTapButton* singleTapButton) => singleTapButton->canTap && !isInputBlocked(singleTapButton, 0) && ScreenManager.Instance is not { IsBlocking: true };
-    public static bool CanTapButton(TintButton* button) => CanTapButton((SingleTapButton*)button);
+    public static bool CanTapButton(SingleTapButton* singleTapButton, bool checkActive) => singleTapButton->canTap
+        && (!checkActive || IsGameObjectActive(singleTapButton))
+        && !isInputBlocked(singleTapButton, 0)
+        && ScreenManager.Instance is not { IsBlocking: true };
+    public static bool CanTapButton(TintButton* tintButton, bool checkActive) => CanTapButton((SingleTapButton*)tintButton, checkActive);
 
     [GameSymbol("Command.UI.SingleTapButton$$ForceTapSteamUICursor")]
     private static delegate* unmanaged<SingleTapButton*, nint, void> forceTapSteamUICursor;
-    public static bool TapButton(SingleTapButton* singleTapButton, uint lockoutMs = 2000, uint delayMS = 0) // TODO: Ensure the button still exists when delayed
+    public static bool TapButton(SingleTapButton* singleTapButton, bool checkActive = true, uint lockoutMs = 2000, uint delayMS = 0) // TODO: Ensure the button still exists when delayed
     {
         if (singleTapButton == null
             || (lastPressedButtons.TryGetValue(((nint)singleTapButton, (nint)singleTapButton->steamUICursorTapSubject), out var timestampMs)
                 && timestampMs > DateTimeOffset.Now.ToUnixTimeMilliseconds())
-            || !CanTapButton(singleTapButton))
+            || !CanTapButton(singleTapButton, checkActive))
             return false;
 
         if (lockoutMs > 0 || delayMS > 0)
             lastPressedButtons[((nint)singleTapButton, (nint)singleTapButton->steamUICursorTapSubject)] = DateTimeOffset.Now.ToUnixTimeMilliseconds() + lockoutMs + delayMS;
 
         if (delayMS > 0)
-            RunOnUpdate(() => forceTapSteamUICursor(singleTapButton, 0), delayMS);
+            RunOnUpdate(() =>
+            {
+                if (CanTapButton(singleTapButton, checkActive))
+                    forceTapSteamUICursor(singleTapButton, 0);
+            }, delayMS);
         else
             RunOnUpdate(() => forceTapSteamUICursor(singleTapButton, 0));
         return true;
     }
 
-    public static bool TapButton(TintButton* button, uint lockoutMs = 2000, uint delayMS = 0) => TapButton((SingleTapButton*)button, lockoutMs, delayMS);
+    public static bool TapButton(TintButton* tintButton, bool checkActive = true, uint lockoutMs = 2000, uint delayMS = 0) => TapButton((SingleTapButton*)tintButton, checkActive, lockoutMs, delayMS);
 
-    public static bool TapKeyAction(KeyAction keyAction, uint lockoutMs = 2000, uint delayMS = 0)
+    public static bool TapKeyAction(KeyAction keyAction, bool checkActive = true, uint lockoutMs = 2000, uint delayMS = 0)
     {
         var ret = false;
         if (GetSingletonInstance<KeyMapManager>() is var keyMapManager && (keyMapManager == null || keyMapManager->keyMaps->size == 0)) return ret;
@@ -180,7 +187,7 @@ public static unsafe class GameInterop
             if (!Il2CppType<SingleTapButton>.Is(keyMap->keyHandlers->GetPtr(i), out var singleTapButton)) continue;
             var buttonKeyAction = singleTapButton->steamKeyAction != KeyAction.None ? singleTapButton->steamKeyAction : singleTapButton->steamKeyActionDefault;
             if (buttonKeyAction == keyAction || buttonKeyAction == KeyAction.Any)
-                ret |= TapButton(singleTapButton, lockoutMs, delayMS);
+                ret |= TapButton(singleTapButton, checkActive, lockoutMs, delayMS);
         }
         return ret;
     }
