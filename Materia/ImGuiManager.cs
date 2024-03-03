@@ -54,9 +54,19 @@ internal sealed class ImGuiManager : IDisposable
 
         var newRet = scene.ProcessWndProcW(hWnd, (User32.WindowMessage)msg, (void*)wParam, (void*)lParam);
 
-        // The game processes keyboard input from here
-        if ((User32.WindowMessage)msg == User32.WindowMessage.WM_INPUT && ImGui.GetIO().WantCaptureKeyboard && new RawInput(lParam).Data is { header: { type: 1, device: not 0 } })
-            return nint.Zero;
+        switch ((User32.WindowMessage)msg)
+        {
+            // The game processes keyboard input / mouse scroll from here
+            case User32.WindowMessage.WM_INPUT when new RawInput(lParam).Data is { header.device: not 0 } data:
+                switch (data.header.type)
+                {
+                    case 0 when ImGui.GetIO().WantCaptureMouse:
+                        return nint.Zero;
+                    case 1 when ImGui.GetIO().WantCaptureKeyboard:
+                        return nint.Zero;
+                }
+                break;
+        }
 
         return newRet;
     }
