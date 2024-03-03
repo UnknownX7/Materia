@@ -58,12 +58,13 @@ public static unsafe class GameInterop
 
     public static nint GetSharedMonoBehaviourInstance(string name, int symbolIndex = 0)
     {
-        if (cachedInstanceStaticFields.TryGetValue(symbolIndex > 0 ? $"{name}_{symbolIndex}" : name, out var staticFields))
+        var key = symbolIndex > 0 ? $"{name}_{symbolIndex}" : name;
+        if (cachedInstanceStaticFields.TryGetValue(key, out var staticFields))
             return staticFields != nint.Zero ? (nint)((SharedMonoBehaviour<nint>.StaticFields*)staticFields)->instance : nint.Zero;
 
         if (!GameData.TryGetSymbolAddress(symbolIndex > 0 ? $"Method$Command.SharedMonoBehaviour<{name}>.get_Instance()_{symbolIndex}" : $"Method$Command.SharedMonoBehaviour<{name}>.get_Instance()", out var address))
         {
-            cachedInstanceStaticFields[name] = nint.Zero;
+            cachedInstanceStaticFields[key] = nint.Zero;
             return nint.Zero;
         }
 
@@ -77,7 +78,7 @@ public static unsafe class GameInterop
         if ((@class->bitflags1 & 1) == 0) return nint.Zero;
 
         staticFields = (nint)@class->staticFields;
-        cachedInstanceStaticFields[symbolIndex > 0 ? $"{name}_{symbolIndex}" : name] = staticFields;
+        cachedInstanceStaticFields[key] = staticFields;
         return staticFields != nint.Zero ? (nint)@class->staticFields->instance : nint.Zero;
     }
 
