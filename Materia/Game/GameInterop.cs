@@ -5,6 +5,7 @@ using ECGen.Generated;
 using ECGen.Generated.Command;
 using ECGen.Generated.Command.KeyInput;
 using ECGen.Generated.Command.UI;
+using ECGen.Generated.UnityEngine;
 using PInvoke;
 using Materia.Attributes;
 
@@ -41,20 +42,20 @@ public static unsafe class GameInterop
     internal static void* NewIl2CppObject(Il2CppClass* @class) => il2cppObjectNew(@class);
 
     [Signature("0F B6 C2 4C 8B C9 45 33 C0", Required = true)]
-    private static delegate* unmanaged<void*, byte, uint> il2cppGCHandleNew;
-    internal static uint NewIl2CppGCHandle(void* ptr, bool pinned) => il2cppGCHandleNew(ptr, (byte)(pinned ? 1 : 0));
+    private static delegate* unmanaged<void*, CBool, uint> il2cppGCHandleNew;
+    internal static uint NewIl2CppGCHandle(void* ptr, bool pinned) => il2cppGCHandleNew(ptr, pinned);
 
     [GameSymbol("System.Runtime.InteropServices.GCHandle$$FreeHandle", Required = true)]
     private static delegate* unmanaged<nint, nint, void> il2cppGCHandleFree;
     internal static void FreeIl2CppGCHandle(uint handle) => il2cppGCHandleFree((nint)handle, 0);
 
     [Signature("E8 ?? ?? ?? ?? 0F B6 F8 EB 0B", ScanType = ScanType.Text, Required = true)] // 48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 41 0F B6 D8 48 8B F2 48 8B F9 E8
-    private static delegate* unmanaged<Il2CppClass*, Il2CppClass*, byte, byte> il2cppClassIsSubclassOf;
-    internal static bool IsIl2CppClassSubclassOf(Il2CppClass* @class, Il2CppClass* otherClass) => il2cppClassIsSubclassOf(@class, otherClass, 0) != 0;
+    private static delegate* unmanaged<Il2CppClass*, Il2CppClass*, CBool, CBool> il2cppClassIsSubclassOf;
+    internal static bool IsIl2CppClassSubclassOf(Il2CppClass* @class, Il2CppClass* otherClass) => il2cppClassIsSubclassOf(@class, otherClass, false);
 
     [Signature("E8 ?? ?? ?? ?? 84 C0 75 2D 4C 8D 4C 24", ScanType = ScanType.Text, Required = true)]
-    private static delegate* unmanaged<Il2CppClass*, Il2CppClass*, byte> il2cppClassIsAssignableFrom;
-    internal static bool IsIl2CppClassAssignableFrom(Il2CppClass* @class, Il2CppClass* otherClass) => il2cppClassIsAssignableFrom(@class, otherClass) != 0;
+    private static delegate* unmanaged<Il2CppClass*, Il2CppClass*, CBool> il2cppClassIsAssignableFrom;
+    internal static bool IsIl2CppClassAssignableFrom(Il2CppClass* @class, Il2CppClass* otherClass) => il2cppClassIsAssignableFrom(@class, otherClass);
 
     public static nint GetSharedMonoBehaviourInstance(string name, int symbolIndex = 0)
     {
@@ -97,11 +98,38 @@ public static unsafe class GameInterop
     public static T* GetSingletonInstance<T>(string name, int symbolIndex = 0) where T : unmanaged => (T*)GetSingletonInstance(name, symbolIndex);
     public static T* GetSingletonInstance<T>(int symbolIndex = 0) where T : unmanaged => (T*)GetSingletonInstance(typeof(T).Name, symbolIndex);
 
+    [GameSymbol("UnityEngine.GameObject$$get_activeSelf")]
+    private static delegate* unmanaged<GameObject*, nint, CBool> gameObjectGetActive;
+    [GameSymbol("UnityEngine.Component$$get_gameObject")]
+    private static delegate* unmanaged<Component*, nint, GameObject*> componentGetGameObject;
+    public static bool IsGameObjectActive(void* obj)
+    {
+        if (obj == null) return false;
+        if (Il2CppType<GameObject>.IsAssignableFrom(obj))
+            return gameObjectGetActive((GameObject*)obj, 0);
+        if (Il2CppType<Component>.IsAssignableFrom(obj))
+            return gameObjectGetActive(componentGetGameObject((Component*)obj, 0), 0);
+        return false;
+    }
+
+    [GameSymbol("UnityEngine.GameObject$$SetActive")]
+    private static delegate* unmanaged<GameObject*, CBool, nint, void> gameObjectSetActive;
+    [GameSymbol("Command.Extensions$$SetActive")]
+    private static delegate* unmanaged<Component*, CBool, nint, void> componentSetActive;
+    public static void SetGameObjectActive(void* obj, bool value)
+    {
+        if (obj == null) return;
+        if (Il2CppType<GameObject>.IsAssignableFrom(obj))
+            RunOnUpdate(() => gameObjectSetActive((GameObject*)obj, value, 0));
+        else if (Il2CppType<Component>.IsAssignableFrom(obj))
+            RunOnUpdate(() => componentSetActive((Component*)obj, value, 0));
+    }
+
     public static void SendKey(ushort vKey, int ms = 100) => GameInteropHelpers.RunSendKeyTask(SendKeyInternal, vKey, ms);
     public static void SendKey(VirtualKey vKey, int ms = 100) => GameInteropHelpers.RunSendKeyTask(SendKeyInternal, (ushort)vKey, ms);
 
     [Signature("E8 ?? ?? ?? ?? 8B 47 04 48 83 C7 07", ScanType = ScanType.Text, Scanner = ScannerType.UnityPlayer)]
-    private static delegate* unmanaged<void*, void*, byte, void> processRawInput;
+    private static delegate* unmanaged<void*, void*, CBool, void> processRawInput;
     private static void SendKeyInternal(ushort vKey, bool down)
     {
         var data = new RawInput.RawKeyboardData
@@ -111,11 +139,11 @@ public static unsafe class GameInterop
             vKey = vKey
         };
         var type = 1u;
-        processRawInput(&type, &data, 1);
+        processRawInput(&type, &data, true);
     }
 
     [GameSymbol("Command.UI.SingleTapButton$$IsInputBlocked")]
-    private static delegate* unmanaged<SingleTapButton*, nint, bool> isInputBlocked;
+    private static delegate* unmanaged<SingleTapButton*, nint, CBool> isInputBlocked;
     public static bool CanTapButton(SingleTapButton* singleTapButton) => singleTapButton->canTap && !isInputBlocked(singleTapButton, 0) && ScreenManager.Instance is not { IsBlocking: true };
     public static bool CanTapButton(TintButton* button) => CanTapButton((SingleTapButton*)button);
 
