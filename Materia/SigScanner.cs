@@ -307,6 +307,7 @@ public sealed unsafe class SigScanner : IDisposable
     {
         address += attribute.Offset;
         var type = memberInfo.GetObjectType()!;
+        // TODO: .NET 8 will make function pointers into their own type, use this to check symbol
         if (type == typeof(nint) || type.IsPointer)
             memberInfo.SetValue(null, address);
         else if (type.IsAssignableTo(typeof(Delegate)))

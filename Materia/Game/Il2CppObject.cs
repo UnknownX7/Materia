@@ -3,7 +3,7 @@ namespace Materia.Game;
 public unsafe class Il2CppObject<T> : IDisposable where T : unmanaged
 {
     private readonly Il2CppGCHandle? gcHandle;
-    public T* Ptr { get; }
+    public T* Ptr { get; private set; }
 
     public Il2CppObject(bool managed = false)
     {
@@ -25,6 +25,7 @@ public unsafe class Il2CppObject<T> : IDisposable where T : unmanaged
     public void Dispose()
     {
         gcHandle?.Dispose();
+        Ptr = null;
         GC.SuppressFinalize(this);
     }
 }
