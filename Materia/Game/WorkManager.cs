@@ -30,6 +30,13 @@ public static unsafe class WorkManager
     public static CharacterWork.CharacterStore* GetCharacterStore(long id) => NativePtr != null && getOrCreateCharacterStore != null ? getOrCreateCharacterStore(NativePtr->character, id, 0) : null;
     public static CharacterWork.CostumeStore* GetCostumeStore(long id) => NativePtr != null && getOrCreateCostumeStore != null ? getOrCreateCostumeStore(NativePtr->character, id, 0) : null;
 
+    public static ChocoboWork.ChocoboExpeditionDeckStore* GetOrCreateChocoboExpeditionDeckStore(long id) => NativePtr != null && getOrCreateChocoboExpeditionDeckStore != null ? getOrCreateChocoboExpeditionDeckStore(NativePtr->chocobo, id, 0) : null;
+    public static ChocoboWork.ChocoboExpeditionGroupRewardStore* GetChocoboExpeditionGroupRewardStore(long chocoboExpeditionGroupId, int idx) => NativePtr != null && getOrCreateChocoboExpeditionGroupRewardStore != null ? getOrCreateChocoboExpeditionGroupRewardStore(NativePtr->chocobo, chocoboExpeditionGroupId, idx, 0) : null;
+    public static ChocoboWork.ChocoboExpeditionGroupStore* GetChocoboExpeditionGroupStore(long id) => NativePtr != null && getOrCreateChocoboExpeditionGroupStore != null ? getOrCreateChocoboExpeditionGroupStore(NativePtr->chocobo, id, 0) : null;
+    public static ChocoboWork.ChocoboExpeditionStore* GetChocoboExpeditionStore(long id) => NativePtr != null && getOrCreateChocoboExpeditionStore != null ? getOrCreateChocoboExpeditionStore(NativePtr->chocobo, id, 0) : null;
+    public static ChocoboWork.ChocoboExpeditionRewardStore* GetChocoboExpeditionRewardStore(long id) => NativePtr != null && getOrCreateChocoboExpeditionRewardStore != null ? getOrCreateChocoboExpeditionRewardStore(NativePtr->chocobo, id, 0) : null;
+    public static ChocoboWork.ChocoboStore* GetChocoboStore(long id) => NativePtr != null && getOrCreateChocoboStore != null ? getOrCreateChocoboStore(NativePtr->chocobo, id, 0) : null;
+
     public static DungeonWork.AnotherAreaStore* GetAnotherAreaStore(long id) => NativePtr != null && getOrCreateAnotherAreaStore != null ? getOrCreateAnotherAreaStore(NativePtr->dungeon, id, 0) : null;
     public static DungeonWork.AnotherDungeonStore* GetAnotherDungeonStore(long id) => NativePtr != null && getOrCreateAnotherDungeonStore != null ? getOrCreateAnotherDungeonStore(NativePtr->dungeon, id, 0) : null;
     public static DungeonWork.AnotherDungeonEntryStore* GetAnotherDungeonEntryStore(int dungeonType) => NativePtr != null && getOrCreateAnotherDungeonEntryStore != null ? getOrCreateAnotherDungeonEntryStore(NativePtr->dungeon, dungeonType, 0) : null;
@@ -190,6 +197,19 @@ public static unsafe class WorkManager
     private static delegate* unmanaged<CharacterWork*, long, nint, CharacterWork.CharacterStore*> getOrCreateCharacterStore;
     [GameSymbol("Command.Work.CharacterWork$$GetOrCreateCostumeStore")]
     private static delegate* unmanaged<CharacterWork*, long, nint, CharacterWork.CostumeStore*> getOrCreateCostumeStore;
+
+    [GameSymbol("Command.Work.ChocoboWork$$GetOrCreateChocoboExpeditionDeckStore")]
+    private static delegate* unmanaged<ChocoboWork*, long, nint, ChocoboWork.ChocoboExpeditionDeckStore*> getOrCreateChocoboExpeditionDeckStore;
+    [GameSymbol("Command.Work.ChocoboWork$$GetOrCreateChocoboExpeditionGroupRewardStore")]
+    private static delegate* unmanaged<ChocoboWork*, long, int, nint, ChocoboWork.ChocoboExpeditionGroupRewardStore*> getOrCreateChocoboExpeditionGroupRewardStore;
+    [GameSymbol("Command.Work.ChocoboWork$$GetOrCreateChocoboExpeditionGroupStore")]
+    private static delegate* unmanaged<ChocoboWork*, long, nint, ChocoboWork.ChocoboExpeditionGroupStore*> getOrCreateChocoboExpeditionGroupStore;
+    [GameSymbol("Command.Work.ChocoboWork$$GetOrCreateChocoboExpeditionStore")]
+    private static delegate* unmanaged<ChocoboWork*, long, nint, ChocoboWork.ChocoboExpeditionStore*> getOrCreateChocoboExpeditionStore;
+    [GameSymbol("Command.Work.ChocoboWork$$GetOrCreateChocoboExpeditionRewardStore")]
+    private static delegate* unmanaged<ChocoboWork*, long, nint, ChocoboWork.ChocoboExpeditionRewardStore*> getOrCreateChocoboExpeditionRewardStore;
+    [GameSymbol("Command.Work.ChocoboWork$$GetOrCreateChocoboStore")]
+    private static delegate* unmanaged<ChocoboWork*, long, nint, ChocoboWork.ChocoboStore*> getOrCreateChocoboStore;
 
     [GameSymbol("Command.Work.DungeonWork$$GetOrCreateAnotherAreaStore")]
     private static delegate* unmanaged<DungeonWork*, long, nint, DungeonWork.AnotherAreaStore*> getOrCreateAnotherAreaStore;
