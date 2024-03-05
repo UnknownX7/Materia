@@ -1,3 +1,4 @@
+using ECGen.Generated;
 using ECGen.Generated.Command.Enums;
 using ECGen.Generated.Command.Work;
 using Materia.Attributes;
@@ -78,6 +79,8 @@ public static unsafe class WorkManager
     public static ItemWork.ItemStore* GetItemStore(long id) => NativePtr != null && getOrCreateItemStore != null ? getOrCreateItemStore(NativePtr->item, id, 0) : null;
     public static ItemWork.ItemCraftOptionStore* GetItemCraftOptionStore(long itemId) => NativePtr != null && getOrCreateItemCraftOptionStore != null ? getOrCreateItemCraftOptionStore(NativePtr->item, itemId, 0) : null;
 
+    public static MaintenanceWork.MaintenanceStore* GetMaintenanceStore(long id) => NativePtr != null && getOrCreateMaintenanceStore != null ? getOrCreateMaintenanceStore(NativePtr->maintenance, id, 0) : null;
+
     public static MateriaWork.MateriaRecipeStore* GetMateriaRecipeStore(long id) => NativePtr != null && getOrCreateMateriaRecipeStore != null ? getOrCreateMateriaRecipeStore(NativePtr->materia, id, 0) : null;
     public static MateriaWork.MasterMateriaEvolveStore* GetMateriaEvolveStore(long id) => NativePtr != null && getOrCreateMateriaEvolveStore != null ? getOrCreateMateriaEvolveStore(NativePtr->materia, id, 0) : null;
     public static MateriaWork.MasterMateriaEvolveStore* GetMateriaEvolveStore(long materiaId, long evolveCount) => NativePtr != null && getOrCreateMateriaEvolveStore2 != null ? getOrCreateMateriaEvolveStore2(NativePtr->materia, materiaId, evolveCount, 0) : null;
@@ -156,6 +159,14 @@ public static unsafe class WorkManager
     public static TowerWork.TowerStore* GetTowerStore(long id) => NativePtr != null && getOrCreateTowerStore != null ? getOrCreateTowerStore(NativePtr->tower, id, 0) : null;
     public static TowerWork.TowerFloorGroupStore* GetTowerFloorGroupStore(long id) => NativePtr != null && getOrCreateTowerFloorGroupStore != null ? getOrCreateTowerFloorGroupStore(NativePtr->tower, id, 0) : null;
     public static TowerWork.TowerFloorStore* GetTowerFloorStore(long id) => NativePtr != null && getOrCreateTowerFloorStore != null ? getOrCreateTowerFloorStore(NativePtr->tower, id, 0) : null;
+
+    public static long CurrentStamina => NativePtr != null && calculateCurrentStamina != null ? calculateCurrentStamina(NativePtr->user, 0) : 0;
+    public static DateTime FullStaminaDateTime => NativePtr != null && calculateStaminaFullRecoveryDatetime != null ? DateTimeOffset.FromUnixTimeMilliseconds(calculateStaminaFullRecoveryDatetime(NativePtr->user, 0)).LocalDateTime : DateTime.MinValue;
+    public static TimeSpan TimeUntilFullStamina => NativePtr != null && calculateStaminaFullRecoveryDatetime != null ? TimeSpan.FromMilliseconds(Math.Max(calculateStaminaFullRecoveryDatetime(NativePtr->user, 0) - DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), 0)) : TimeSpan.Zero;
+    public static bool IsMaxStamina => NativePtr != null && isMaxStamina != null && isMaxStamina(NativePtr->user, 0);
+    public static long AnotherDungeonKeyCount => NativePtr != null && getAnotherDungeonKeyCount != null ? getAnotherDungeonKeyCount(NativePtr->user, 0) : 0;
+    public static long NextRequiredUserExp => NativePtr != null && findUserNextRequiredExp != null ? findUserNextRequiredExp(NativePtr->user, 0) : 0;
+    public static UserWork.RecoveryStoneStore* GetOrCreateRecoveryStoneStore(long id) => NativePtr != null && getOrCreateRecoveryStoneStore != null ? getOrCreateRecoveryStoneStore(NativePtr->user, id, 0) : null;
 
     public static WeaponWork.WeaponStore* GetWeaponStore(long id) => NativePtr != null && getOrCreateMasterWeaponStore != null ? getOrCreateMasterWeaponStore(NativePtr->weapon, id, 0) : null;
     public static WeaponWork.WeaponNotesSetStore* GetWeaponNotesSetStore(long notesSetId) => NativePtr != null && getOrCreateWeaponNotesSetStore != null ? getOrCreateWeaponNotesSetStore(NativePtr->weapon, notesSetId, 0) : null;
@@ -288,6 +299,9 @@ public static unsafe class WorkManager
     [GameSymbol("Command.Work.ItemWork$$GetOrCreateItemCraftOptionStore")]
     private static delegate* unmanaged<ItemWork*, long, nint, ItemWork.ItemCraftOptionStore*> getOrCreateItemCraftOptionStore;
 
+    [GameSymbol("Command.Work.MaintenanceWork$$GetOrCreateMaintenanceStore")]
+    private static delegate* unmanaged<MaintenanceWork*, long, nint, MaintenanceWork.MaintenanceStore*> getOrCreateMaintenanceStore;
+
     [GameSymbol("Command.Work.MateriaWork$$GetOrCreateMateriaRecipeStore")]
     private static delegate* unmanaged<MateriaWork*, long, nint, MateriaWork.MateriaRecipeStore*> getOrCreateMateriaRecipeStore;
     [GameSymbol("Command.Work.MateriaWork$$GetOrCreateMateriaEvolveStore_1")]
@@ -325,9 +339,9 @@ public static unsafe class WorkManager
     [GameSymbol("Command.Work.PartyWork$$GetOrCreatePartyGroupStore")]
     private static delegate* unmanaged<PartyWork*, long, nint, PartyWork.PartyGroupStore*> getOrCreatePartyGroupStore;
     [GameSymbol("Command.Work.PartyWork$$GetOrCreatePartyStore")]
-    private static delegate* unmanaged<PartyWork*, long, bool, nint, PartyWork.PartyStore*> getOrCreatePartyStore;
+    private static delegate* unmanaged<PartyWork*, long, CBool, nint, PartyWork.PartyStore*> getOrCreatePartyStore;
     [GameSymbol("Command.Work.PartyWork$$GetOrCreatePartyCharacterStore")]
-    private static delegate* unmanaged<PartyWork*, long, long, bool, nint, PartyWork.PartyCharacterStore*> getOrCreatePartyCharacterStore;
+    private static delegate* unmanaged<PartyWork*, long, long, CBool, nint, PartyWork.PartyCharacterStore*> getOrCreatePartyCharacterStore;
     [GameSymbol("Command.Work.PartyWork$$GetStatusParamInfo")]
     private static delegate* unmanaged<PartyWork*, PartyCharacterInfo*, nint, PartyCharacterInfo*> getStatusParamInfo;
 
@@ -410,6 +424,19 @@ public static unsafe class WorkManager
     private static delegate* unmanaged<TowerWork*, long, nint, TowerWork.TowerFloorGroupStore*> getOrCreateTowerFloorGroupStore;
     [GameSymbol("Command.Work.TowerWork$$GetOrCreateTowerFloorStore")]
     private static delegate* unmanaged<TowerWork*, long, nint, TowerWork.TowerFloorStore*> getOrCreateTowerFloorStore;
+
+    [GameSymbol("Command.Work.UserWork$$CalculateCurrentStamina")]
+    private static delegate* unmanaged<UserWork*, nint, long> calculateCurrentStamina;
+    [GameSymbol("Command.Work.UserWork$$CalculateStaminaFullRecoveryDatetime")]
+    private static delegate* unmanaged<UserWork*, nint, long> calculateStaminaFullRecoveryDatetime;
+    [GameSymbol("Command.Work.UserWork$$IsMaxStamina")]
+    private static delegate* unmanaged<UserWork*, nint, CBool> isMaxStamina;
+    [GameSymbol("Command.Work.UserWork$$GetAnotherDungeonKeyCount")]
+    private static delegate* unmanaged<UserWork*, nint, long> getAnotherDungeonKeyCount;
+    [GameSymbol("Command.Work.UserWork$$FindUserNextRequiredExp")]
+    private static delegate* unmanaged<UserWork*, nint, long> findUserNextRequiredExp;
+    [GameSymbol("Command.Work.UserWork$$GetOrCreateRecoveryStoneStore")]
+    private static delegate* unmanaged<UserWork*, long, nint, UserWork.RecoveryStoneStore*> getOrCreateRecoveryStoneStore;
 
     [GameSymbol("Command.Work.WeaponWork$$GetOrCreateMasterWeaponStore")]
     private static delegate* unmanaged<WeaponWork*, long, nint, WeaponWork.WeaponStore*> getOrCreateMasterWeaponStore;
