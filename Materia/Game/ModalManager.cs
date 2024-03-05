@@ -1,8 +1,10 @@
-using ECGen.Generated;
 using ECGen.Generated.Command.UI;
+using Materia.Attributes;
+using Materia.Plugin;
 
 namespace Materia.Game;
 
+[Injection]
 public unsafe class ModalManager
 {
     private static readonly ModalManager instance = new();
@@ -19,8 +21,8 @@ public unsafe class ModalManager
 
     public ECGen.Generated.Command.UI.ModalManager* NativePtr { get; private set; }
     public int ModalCount => NativePtr->instancedModalInfos is var instancedModalInfos && instancedModalInfos != null ? instancedModalInfos->size : 0;
-    public Modal<ModalBase<Il2CppObject>>? CurrentModal => ModalCount > 0 ? GetModal<ModalBase<Il2CppObject>>(ModalCount - 1) : null;
-    public IEnumerable<Modal<ModalBase<Il2CppObject>>> CurrentModals
+    public Modal? CurrentModal => ModalCount > 0 ? GetModal(ModalCount - 1) : null;
+    public IEnumerable<Modal> CurrentModals
     {
         get
         {
@@ -45,6 +47,15 @@ public unsafe class ModalManager
 
     public bool IsModalOpen<T>() where T : unmanaged => GetModal<T>() != null;
     public bool IsCurrentModal<T>() where T : unmanaged => GetCurrentModal<T>() != null;
-    private Modal<T> GetModal<T>(int i) where T : unmanaged => Modal<T>.CreateInstance(NativePtr->instancedModalInfos->GetPtr(i)->modal)!;
-    private Modal<ModalBase<Il2CppObject>> GetModal(int i) => GetModal<ModalBase<Il2CppObject>>(i);
+    private Modal GetModal(int i) => Modal.CreateInstance(NativePtr->instancedModalInfos->GetPtr(i)->modal)!;
+
+    private delegate void SetStatusChangeEventDelegate(ECGen.Generated.Command.UI.ModalManager* modalManager, ECGen.Generated.Command.UI.ModalManager.ModalInfo* modalInfo, nint method);
+    [GameSymbol("Command.UI.ModalManager$$SetStatusChangeEvent")]
+    private static IMateriaHook<SetStatusChangeEventDelegate>? SetStatusChangeEventHook;
+    private static void SetStatusChangeEventDetour(ECGen.Generated.Command.UI.ModalManager* modalManager, ECGen.Generated.Command.UI.ModalManager.ModalInfo* modalInfo, nint method)
+    {
+        SetStatusChangeEventHook!.Original(modalManager, modalInfo, method);
+        var modal = Modal.CreateInstance(modalInfo->modal)!;
+        Materia.PluginManager.InvokeAll(p => p.PluginServiceManager?.EventHandler.InvokeModalCreated(modal), nameof(PluginEventHandler.ModalCreated));
+    }
 }

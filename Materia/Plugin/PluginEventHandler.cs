@@ -1,3 +1,5 @@
+using Materia.Game;
+
 namespace Materia.Plugin;
 
 public sealed class PluginEventHandler
@@ -12,4 +14,10 @@ public sealed class PluginEventHandler
     public void InvokeDispose() => Dispose?.Invoke();
 
     public Action? ToggleMenu;
+
+    public event Action<Screen>? ScreenCreated;
+    public void InvokeScreenCreated(Screen screen) => ScreenCreated?.Invoke(screen);
+
+    public event Action<Modal>? ModalCreated;
+    public void InvokeModalCreated(Modal modal) => ModalCreated?.Invoke(modal);
 }
