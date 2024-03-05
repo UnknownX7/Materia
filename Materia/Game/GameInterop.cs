@@ -26,7 +26,8 @@ public static unsafe class GameInterop
 
     [Signature("E8 ?? ?? ?? ?? 48 8B C8 48 89 07", ScanType = ScanType.Text, Required = true)] // 8B CA B2 01 E9
     private static delegate* unmanaged<nint, int, Il2CppClass*> getTypeInfoFromInstance;
-    internal static Il2CppClass* GetTypeInfo<T>() where T : unmanaged
+    public static Il2CppClass* GetTypeInfo(int id) => getTypeInfoFromInstance(0, id);
+    public static Il2CppClass* GetTypeInfo<T>() where T : unmanaged
     {
         var type = typeof(T);
         if (cachedTypeInfos.TryGetValue(type, out var typeInfo)) return (Il2CppClass*)typeInfo;
@@ -36,6 +37,8 @@ public static unsafe class GameInterop
         cachedTypeInfos[type] = typeInfo;
         return (Il2CppClass*)typeInfo;
     }
+
+    public static Il2CppClass* GetGenericTypeInfo(Il2CppClass* @class) => @class->genericClass != null ? GetTypeInfo((*@class->genericClass->typeDefinition)->byValTypeIndex) : null; // TODO: Causes an access violation on some types occasionally
 
     [Signature("E8 ?? ?? ?? ?? 48 8B 4C 24 ?? 48 8B D8 48 8B 51 20", ScanType = ScanType.Text, Required = true)] // E8 ?? ?? ?? ?? 48 8B D7 48 8B C8 48 8B D8 E8 ?? ?? ?? ??
     private static delegate* unmanaged<Il2CppClass*, void*> il2cppObjectNew;

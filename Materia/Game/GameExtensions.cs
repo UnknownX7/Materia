@@ -1,3 +1,4 @@
+using ECGen.Generated;
 using ECGen.Generated.Command.UI;
 using ECGen.Generated.UnityEngine;
 
@@ -5,6 +6,18 @@ namespace Materia.Game;
 
 public static unsafe class GameExtensions
 {
+    public static Il2CppType GetIl2CppType(this ref Il2CppClass @class) => Il2CppType.WrapPointer(ref @class);
+    public static string GetName(this ref Il2CppClass @class) => Il2CppType.WrapPointer(ref @class).Name;
+    public static string GetNamespace(this ref Il2CppClass @class) => Il2CppType.WrapPointer(ref @class).Namespace;
+    public static string GetFullName(this ref Il2CppClass @class) => Il2CppType.WrapPointer(ref @class).FullName;
+    public static Il2CppClass* GetGenericClass(this ref Il2CppClass @class) => Il2CppType.WrapPointer(ref @class).GenericType is { } t ? t.NativePtr : null;
+
+    public static Il2CppType GetIl2CppType<S,R,V>(this ref Il2CppClass<S,R,V> @class) where S : unmanaged where R : unmanaged where V : unmanaged => Il2CppType.WrapPointer(ref @class);
+    public static string GetName<S,R,V>(this ref Il2CppClass<S,R,V> @class) where S : unmanaged where R : unmanaged where V : unmanaged => Il2CppType.WrapPointer(ref @class).Name;
+    public static string GetNamespace<S,R,V>(this ref Il2CppClass<S,R,V> @class) where S : unmanaged where R : unmanaged where V : unmanaged => Il2CppType.WrapPointer(ref @class).Namespace;
+    public static string GetFullName<S,R,V>(this ref Il2CppClass<S,R,V> @class) where S : unmanaged where R : unmanaged where V : unmanaged => Il2CppType.WrapPointer(ref @class).FullName;
+    public static Il2CppClass* GetGenericClass<S,R,V>(this ref Il2CppClass<S,R,V> @class) where S : unmanaged where R : unmanaged where V : unmanaged => Il2CppType.WrapPointer(ref @class).GenericType is { } t ? t.NativePtr : null;
+
     public static bool IsActive(this ref GameObject obj)
     {
         fixed (void* ptr = &obj)

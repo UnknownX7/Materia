@@ -8,16 +8,28 @@ namespace Materia.Game;
 public unsafe class Il2CppType
 {
     private static readonly ConcurrentDictionary<nint, Il2CppType> cache = new();
-    internal static Il2CppType WrapPointer(Il2CppClass* ptr)
+    public static Il2CppType WrapPointer(Il2CppClass* @class)
     {
-        var address = (nint)ptr;
+        var address = (nint)@class;
         if (cache.TryGetValue(address, out var type)) return type;
-        type = new Il2CppType(ptr);
+        type = new Il2CppType(@class);
         cache[address] = type;
         return type;
     }
 
-    internal static Il2CppType WrapPointer(void* ptr) => WrapPointer(*(Il2CppClass**)ptr);
+    public static Il2CppType WrapPointer(ref Il2CppClass @class)
+    {
+        fixed (Il2CppClass* ptr = &@class)
+            return WrapPointer(ptr);
+    }
+
+    public static Il2CppType WrapPointer<S,R,V>(ref Il2CppClass<S,R,V> @class) where S : unmanaged where R : unmanaged where V : unmanaged
+    {
+        fixed (void* ptr = &@class)
+            return WrapPointer((Il2CppClass*)ptr);
+    }
+
+    public static Il2CppType WrapPointer(void* ptr) => WrapPointer(*(Il2CppClass**)ptr);
 
     public Il2CppClass* NativePtr { get; }
 
@@ -29,6 +41,9 @@ public unsafe class Il2CppType
 
     private string? fullName;
     public string FullName => fullName ??= !string.IsNullOrEmpty(Namespace) ? $"{Namespace}.{Name}" : Name;
+
+    private Il2CppType? genericType;
+    public Il2CppType? GenericType => NativePtr->genericClass != null ? genericType ??= WrapPointer(GameInterop.GetTypeInfo((*NativePtr->genericClass->typeDefinition)->byValTypeIndex)) : null;
 
     private Il2CppType(Il2CppClass* ptr) => NativePtr = ptr;
     public static bool operator ==(Il2CppType t, void* ptr) => ptr != null && *(void**)ptr == t.NativePtr;

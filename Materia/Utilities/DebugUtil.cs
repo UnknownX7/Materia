@@ -9,7 +9,13 @@ public static unsafe class DebugUtil
     public static void PrintObject(object o)
     {
         foreach (var member in o.GetType().GetMembers(BindingFlags.Instance | BindingFlags.Public).Where(member => member.MemberType is MemberTypes.Field or MemberTypes.Property))
-            Console.WriteLine($"{member.Name} = {member.GetValue(o)}");
+        {
+            var v = member.GetValue(o);
+            if (v is Pointer p)
+                Console.WriteLine($"{member.Name} = P: {(nint)Pointer.Unbox(p):X}");
+            else
+                Console.WriteLine($"{member.Name} = {v}");
+        }
     }
 
     public static string GetTypeName(void* o, bool isClassType = false)
