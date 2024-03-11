@@ -107,7 +107,7 @@ public static unsafe class GameInterop
     private static delegate* unmanaged<Component*, nint, GameObject*> componentGetGameObject;
     public static bool IsGameObjectActive(void* obj)
     {
-        if (obj == null) return false;
+        if (obj == null || ((GameObject*)obj)->m_CachedPtr == nint.Zero) return false;
         if (Il2CppType<GameObject>.IsAssignableFrom(obj))
             return gameObjectGetActive((GameObject*)obj, 0);
         if (Il2CppType<Component>.IsAssignableFrom(obj))
@@ -121,7 +121,7 @@ public static unsafe class GameInterop
     private static delegate* unmanaged<Component*, CBool, nint, void> componentSetActive;
     public static void SetGameObjectActive(void* obj, bool active)
     {
-        if (obj == null) return;
+        if (obj == null || ((GameObject*)obj)->m_CachedPtr == nint.Zero) return;
         if (Il2CppType<GameObject>.IsAssignableFrom(obj))
             RunOnUpdate(() => gameObjectSetActive((GameObject*)obj, active, 0));
         else if (Il2CppType<Component>.IsAssignableFrom(obj))
