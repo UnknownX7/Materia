@@ -307,8 +307,15 @@ public sealed unsafe class SigScanner : IDisposable
     {
         address += attribute.Offset;
         var type = memberInfo.GetObjectType()!;
-        // TODO: .NET 8 will make function pointers into their own type, use this to check symbol
-        if (type == typeof(nint) || type.IsPointer)
+
+        if (type.IsFunctionPointer && attribute is GameSymbolAttribute symAttribute)
+        {
+            if (EnsureSymbolMatch(symAttribute, type, memberInfo))
+                memberInfo.SetValue(null, address);
+            return;
+        }
+
+        if (type == typeof(nint) || type.IsPointer || type.IsFunctionPointer)
             memberInfo.SetValue(null, address);
         else if (type.IsAssignableTo(typeof(Delegate)))
             memberInfo.SetValue(null, Marshal.GetDelegateForFunctionPointer(address, type));
@@ -325,15 +332,9 @@ public sealed unsafe class SigScanner : IDisposable
         var ownerType = memberInfo.ReflectedType!;
         var type = memberInfo.GetObjectType()!;
         var hookDelegateType = type.GenericTypeArguments[0];
-
-        if (attribute is GameSymbolAttribute symAttribute && !ValidateDelegate(hookDelegateType, symAttribute.Symbol, symAttribute.ReturnPointer))
-        {
-            LogInjectError(memberInfo, $"Symbol \"{symAttribute.Symbol}\" ({GetSymbolTypeSignature(symAttribute.Symbol, symAttribute.ReturnPointer)}) does not match delegate \"{hookDelegateType.Name}\" ({GetTypeSignature(hookDelegateType)})", attribute.Required);
-            return;
-        }
+        if (attribute is GameSymbolAttribute symAttribute && !EnsureSymbolMatch(symAttribute, hookDelegateType, memberInfo)) return;
 
         var detour = GetMethodDelegate(ownerType, hookDelegateType, null, memberInfo.Name.Replace("Hook", "Detour"));
-
         if (detour == null)
         {
             var detourName = attribute.DetourName;
@@ -367,6 +368,15 @@ public sealed unsafe class SigScanner : IDisposable
             hook.Enable();
     }
 
+    private static bool EnsureSymbolMatch(GameSymbolAttribute attribute, Type delegateType, MemberInfo memberInfo)
+    {
+        var symbolTypeSignature = GetSymbolTypeSignature(attribute.Symbol, attribute.ReturnPointer);
+        var delegateTypeSignature = GetTypeSignature(delegateType);
+        if (symbolTypeSignature == delegateTypeSignature) return true;
+        LogInjectError(memberInfo, $"Symbol \"{attribute.Symbol}\" ({symbolTypeSignature}) does not match delegate \"{delegateType.Name}\" ({delegateTypeSignature})", attribute.Required);
+        return false;
+    }
+
     private static readonly Dictionary<Type, char> typeChars = new()
     {
         [typeof(void)] = 'v',
@@ -375,17 +385,17 @@ public sealed unsafe class SigScanner : IDisposable
         [typeof(float)] = 'f',
         [typeof(double)] = 'd'
     };
-    private static string? GetTypeSignature(MethodInfo? methodInfo)
+    private static string GetTypeSignature(IReadOnlyCollection<Type> types)
     {
-        if (methodInfo == null) return null;
-        var types = methodInfo.GetParameters().Select(p => p.ParameterType).Prepend(methodInfo.ReturnType).ToArray();
-        var builder = new System.Text.StringBuilder(types.Length);
+        var builder = new System.Text.StringBuilder(types.Count);
         foreach (var type in types)
             builder.Append(typeChars.TryGetValue(type, out var c) ? c : 'i');
         return builder.ToString();
     }
 
-    private static string? GetTypeSignature(Type type) => GetTypeSignature(type.GetMethod("Invoke"));
+    private static string GetTypeSignature(Type type) => GetTypeSignature(type.GetMethod("Invoke") is { } methodInfo
+        ? methodInfo.GetParameters().Select(p => p.ParameterType).Prepend(methodInfo.ReturnType).ToArray()
+        : type.GetFunctionPointerParameterTypes().Prepend(type.GetFunctionPointerReturnType()).ToArray());
 
     private static string GetSymbolTypeSignature(string symbol, bool returnPointer)
     {

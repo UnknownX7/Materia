@@ -1,6 +1,7 @@
 using ECGen.Generated;
 using ECGen.Generated.Command.Enums;
 using ECGen.Generated.Command.Work;
+using ECGen.Generated.System.Collections.Generic;
 using Materia.Attributes;
 
 namespace Materia.Game;
@@ -102,7 +103,7 @@ public static unsafe class WorkManager
     public static PartyWork.PartyGroupStore* GetPartyGroupStore(long id) => NativePtr != null && getOrCreatePartyGroupStore != null ? getOrCreatePartyGroupStore(NativePtr->party, id, 0) : null;
     public static PartyWork.PartyStore* GetPartyStore(long id, bool createDefault) => NativePtr != null && getOrCreatePartyStore != null ? getOrCreatePartyStore(NativePtr->party, id, createDefault, 0) : null;
     public static PartyWork.PartyCharacterStore* GetPartyCharacterStore(long partyMemberId, long idx, bool createDefault) => NativePtr != null && getOrCreatePartyCharacterStore != null ? getOrCreatePartyCharacterStore(NativePtr->party, partyMemberId, idx, createDefault, 0) : null;
-    public static PartyCharacterInfo* GetStatusParamInfo(PartyCharacterInfo* info) => NativePtr != null && getStatusParamInfo != null ? getStatusParamInfo(NativePtr->party, info, 0) : null;
+    public static PartyCharacterInfo* GetStatusParamInfo(PartyCharacterInfo* info) => NativePtr != null && getStatusParamInfo != null ? getStatusParamInfo(NativePtr->party, info, null, 0) : null;
 
     public static ResetWork.ResetStore* GetResetStore(long id) => NativePtr != null && getOrCreateResetStore != null ? getOrCreateResetStore(NativePtr->reset, id, 0) : null;
     public static TimeSpan GetTimeUntilReset(long resetId)
@@ -132,11 +133,11 @@ public static unsafe class WorkManager
     public static ShopWork.ShopItemStore* GetShopItemStore(long id) => NativePtr != null && getOrCreateMasterShopItemStore != null ? getOrCreateMasterShopItemStore(NativePtr->shop, id, 0) : null;
     public static ShopWork.ShopPickupItemStore* GetShopPickupItemStore(long id) => NativePtr != null && getOrCreateMasterShopPickupItemStore != null ? getOrCreateMasterShopPickupItemStore(NativePtr->shop, id, 0) : null;
 
-    public static SkillWork.BaseSkillStore* GetBaseSkillStore(long id, long skillLevel, int skillCoefficient, int damageCoefficient, long skillEffectGroupId) => NativePtr != null && getOrCreateBaseSkillStore != null ? getOrCreateBaseSkillStore(NativePtr->skill, id, skillLevel, skillCoefficient, damageCoefficient, skillEffectGroupId, 0) : null;
+    public static SkillWork.BaseSkillStore* GetBaseSkillStore(long id, long skillLevel, int skillCoefficient, int damageCoefficient, long skillEffectGroupId, bool isGuest) => NativePtr != null && getOrCreateBaseSkillStore != null ? getOrCreateBaseSkillStore(NativePtr->skill, id, skillLevel, skillCoefficient, damageCoefficient, skillEffectGroupId, isGuest, 0) : null;
     public static SkillWork.NotesSetGroupSeriesStore* GetNotesSetGroupSeriesStore(long id) => NativePtr != null && getOrCreateNotesSetGroupSeriesStore != null ? getOrCreateNotesSetGroupSeriesStore(NativePtr->skill, id, 0) : null;
     public static SkillWork.NotesStore* GetNotesStore(long id) => NativePtr != null && getOrCreateNotesStore != null ? getOrCreateNotesStore(NativePtr->skill, id, 0) : null;
     public static SkillWork.PassiveSkillStore* GetPassiveSkillStore(long id) => NativePtr != null && getOrCreatePassiveSkillStore != null ? getOrCreatePassiveSkillStore(NativePtr->skill, id, 0) : null;
-    public static SkillWork.SpecialSkillStore* GetSpecialSkillStore(long id, int skillLevel) => NativePtr != null && getOrCreateSpecialSkillInfo != null ? getOrCreateSpecialSkillInfo(NativePtr->skill, id, skillLevel, 0) : null;
+    public static SkillWork.SpecialSkillStore* GetSpecialSkillStore(long id, int skillLevel, bool isGuest) => NativePtr != null && getOrCreateSpecialSkillInfo != null ? getOrCreateSpecialSkillInfo(NativePtr->skill, id, skillLevel, isGuest, 0) : null;
     public static SkillWork.SpecialSkillStore* GetUserSpecialSkillStore(long specialSkillId, int skillLevel) => NativePtr != null && getOrCreateUserSpecialSkillInfo != null ? getOrCreateUserSpecialSkillInfo(NativePtr->skill, specialSkillId, skillLevel, 0) : null;
     public static SkillWork.EnemyActiveSkillStore* GetEnemyActiveSkillStore(long id, int skillLevel) => NativePtr != null && getOrCreateEnemyActiveSkillStore != null ? getOrCreateEnemyActiveSkillStore(NativePtr->skill, id, skillLevel, 0) : null;
 
@@ -343,7 +344,7 @@ public static unsafe class WorkManager
     [GameSymbol("Command.Work.PartyWork$$GetOrCreatePartyCharacterStore")]
     private static delegate* unmanaged<PartyWork*, long, long, CBool, nint, PartyWork.PartyCharacterStore*> getOrCreatePartyCharacterStore;
     [GameSymbol("Command.Work.PartyWork$$GetStatusParamInfo")]
-    private static delegate* unmanaged<PartyWork*, PartyCharacterInfo*, nint, PartyCharacterInfo*> getStatusParamInfo;
+    private static delegate* unmanaged<PartyWork*, PartyCharacterInfo*, Unmanaged_List<PassiveSkillEffectInfo>*, nint, PartyCharacterInfo*> getStatusParamInfo;
 
     [GameSymbol("Command.Work.ResetWork$$GetOrCreateResetStore")]
     private static delegate* unmanaged<ResetWork*, long, nint, ResetWork.ResetStore*> getOrCreateResetStore;
@@ -375,7 +376,7 @@ public static unsafe class WorkManager
     private static delegate* unmanaged<ShopWork*, long, nint, ShopWork.ShopPickupItemStore*> getOrCreateMasterShopPickupItemStore;
 
     [GameSymbol("Command.Work.SkillWork$$GetOrCreateBaseSkillStore")]
-    private static delegate* unmanaged<SkillWork*, long, long, int, int, long, nint, SkillWork.BaseSkillStore*> getOrCreateBaseSkillStore;
+    private static delegate* unmanaged<SkillWork*, long, long, int, int, long, CBool, nint, SkillWork.BaseSkillStore*> getOrCreateBaseSkillStore;
     [GameSymbol("Command.Work.SkillWork$$GetOrCreateNotesSetGroupSeriesStore")]
     private static delegate* unmanaged<SkillWork*, long, nint, SkillWork.NotesSetGroupSeriesStore*> getOrCreateNotesSetGroupSeriesStore;
     [GameSymbol("Command.Work.SkillWork$$GetOrCreateNotesStore")]
@@ -383,7 +384,7 @@ public static unsafe class WorkManager
     [GameSymbol("Command.Work.SkillWork$$GetOrCreatePassiveSkillStore")]
     private static delegate* unmanaged<SkillWork*, long, nint, SkillWork.PassiveSkillStore*> getOrCreatePassiveSkillStore;
     [GameSymbol("Command.Work.SkillWork$$GetOrCreateSpecialSkillInfo")]
-    private static delegate* unmanaged<SkillWork*, long, int, nint, SkillWork.SpecialSkillStore*> getOrCreateSpecialSkillInfo;
+    private static delegate* unmanaged<SkillWork*, long, int, CBool, nint, SkillWork.SpecialSkillStore*> getOrCreateSpecialSkillInfo;
     [GameSymbol("Command.Work.SkillWork$$GetOrCreateUserSpecialSkillInfo")]
     private static delegate* unmanaged<SkillWork*, long, int, nint, SkillWork.SpecialSkillStore*> getOrCreateUserSpecialSkillInfo;
     [GameSymbol("Command.Work.SkillWork$$GetOrCreateEnemyActiveSkillStore")]
