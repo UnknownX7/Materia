@@ -112,15 +112,17 @@ public static unsafe class GameInterop
 
     [GameSymbol("UnityEngine.GameObject$$get_activeSelf")]
     private static delegate* unmanaged<GameObject*, nint, CBool> gameObjectGetActive;
+    [GameSymbol("UnityEngine.GameObject$$get_activeInHierarchy")]
+    private static delegate* unmanaged<GameObject*, nint, CBool> gameObjectGetActiveInHierarchy;
     [GameSymbol("UnityEngine.Component$$get_gameObject")]
     private static delegate* unmanaged<Component*, nint, GameObject*> componentGetGameObject;
-    public static bool IsGameObjectActive(void* obj)
+    public static bool IsGameObjectActive(void* obj, bool inHierarchy = false)
     {
         if (obj == null || ((GameObject*)obj)->m_CachedPtr == nint.Zero) return false;
         if (Il2CppType<GameObject>.IsAssignableFrom(obj))
-            return gameObjectGetActive((GameObject*)obj, 0);
+            return inHierarchy ? gameObjectGetActiveInHierarchy((GameObject*)obj, 0) : gameObjectGetActive((GameObject*)obj, 0);
         if (Il2CppType<Component>.IsAssignableFrom(obj))
-            return gameObjectGetActive(componentGetGameObject((Component*)obj, 0), 0);
+            return inHierarchy ? gameObjectGetActiveInHierarchy(componentGetGameObject((Component*)obj, 0), 0) : gameObjectGetActive(componentGetGameObject((Component*)obj, 0), 0);
         return false;
     }
 
@@ -135,6 +137,52 @@ public static unsafe class GameInterop
             RunOnUpdate(() => gameObjectSetActive((GameObject*)obj, active, 0));
         else if (Il2CppType<Component>.IsAssignableFrom(obj))
             RunOnUpdate(() => componentSetActive((Component*)obj, active, 0));
+    }
+
+    public static void ChangeGameObjectActive(void* obj, bool active)
+    {
+        if (obj == null || ((GameObject*)obj)->m_CachedPtr == nint.Zero) return;
+        if (Il2CppType<GameObject>.IsAssignableFrom(obj))
+        {
+            RunOnUpdate(() =>
+            {
+                if (gameObjectGetActive((GameObject*)obj, 0) != active)
+                    gameObjectSetActive((GameObject*)obj, active, 0);
+            });
+        }
+        else if (Il2CppType<Component>.IsAssignableFrom(obj))
+        {
+            RunOnUpdate(() =>
+            {
+                var gameObject = componentGetGameObject((Component*)obj, 0);
+                if (gameObjectGetActive(gameObject, 0) != active)
+                    gameObjectSetActive(gameObject, active, 0);
+            });
+        }
+    }
+
+    [GameSymbol("UnityEngine.GameObject$$get_tag")]
+    private static delegate* unmanaged<GameObject*, nint, Unmanaged_String*> gameObjectGetTag;
+    public static string? GetGameObjectTag(void* obj)
+    {
+        if (obj == null || ((GameObject*)obj)->m_CachedPtr == nint.Zero) return null;
+        if (Il2CppType<GameObject>.IsAssignableFrom(obj))
+            return gameObjectGetTag((GameObject*)obj, 0)->ToString();
+        if (Il2CppType<Component>.IsAssignableFrom(obj))
+            return gameObjectGetTag(componentGetGameObject((Component*)obj, 0), 0)->ToString();
+        return null;
+    }
+
+    [GameSymbol("UnityEngine.GameObject$$get_transform")]
+    private static delegate* unmanaged<GameObject*, nint, Transform*> gameObjectGetTransform;
+    public static Transform* GetGameObjectTransform(void* obj)
+    {
+        if (obj == null || ((GameObject*)obj)->m_CachedPtr == nint.Zero) return null;
+        if (Il2CppType<GameObject>.IsAssignableFrom(obj))
+            return gameObjectGetTransform((GameObject*)obj, 0);
+        if (Il2CppType<Component>.IsAssignableFrom(obj))
+            return gameObjectGetTransform(componentGetGameObject((Component*)obj, 0), 0);
+        return null;
     }
 
     public static void SendKey(ushort vKey, int ms = 100) => GameInteropHelpers.RunSendKeyTask(SendKeyInternal, vKey, ms);
