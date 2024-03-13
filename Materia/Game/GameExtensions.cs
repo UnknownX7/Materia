@@ -101,4 +101,6 @@ public static unsafe class GameExtensions
         fixed (TintButton* ptr = &tintButton)
             return GameInterop.TapButton(ptr, checkActive, lockoutMs, delayMS);
     }
+
+    public static Unmanaged_String* ToUnmanagedString(this string str) => GameInterop.CreateString(str);
 }

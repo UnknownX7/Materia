@@ -60,6 +60,15 @@ public static unsafe class GameInterop
     private static delegate* unmanaged<Il2CppClass*, Il2CppClass*, CBool> il2cppClassIsAssignableFrom;
     internal static bool IsIl2CppClassAssignableFrom(Il2CppClass* @class, Il2CppClass* otherClass) => il2cppClassIsAssignableFrom(@class, otherClass);
 
+    [GameSymbol("System.String$$Ctor_3", Required = true)]
+    private static delegate* unmanaged<char*, int, int, nint, Unmanaged_String*> stringCtor;
+    public static Unmanaged_String* CreateString(string str)
+    {
+        var array = str.ToCharArray();
+        fixed (char* ptr = array)
+            return stringCtor(ptr, 0, array.Length, 0);
+    }
+
     public static nint GetSharedMonoBehaviourInstance(string name, int symbolIndex = 0)
     {
         var key = symbolIndex > 0 ? $"{name}_{symbolIndex}" : name;
