@@ -110,6 +110,18 @@ public static unsafe class GameInterop
     public static T* GetSingletonInstance<T>(string name, int symbolIndex = 0) where T : unmanaged => (T*)GetSingletonInstance(name, symbolIndex);
     public static T* GetSingletonInstance<T>(int symbolIndex = 0) where T : unmanaged => (T*)GetSingletonInstance(typeof(T).Name, symbolIndex);
 
+    [GameSymbol("SingletonMonoBehaviour<object>$$get_Instance", Required = true)]
+    private static delegate* unmanaged<nint, nint> singletonMonoBehaviourGetInstance;
+    public static nint GetSingletonMonoBehaviourInstance(string name, int symbolIndex = 0)
+    {
+        if (!GameData.TryGetSymbolAddress(symbolIndex > 0 ? $"Method$SingletonMonoBehaviour<{name}>.get_Instance()_{symbolIndex}" : $"Method$SingletonMonoBehaviour<{name}>.get_Instance()", out var address)) return nint.Zero;
+        address = *(nint*)address;
+        return (nuint)address <= uint.MaxValue ? nint.Zero : singletonMonoBehaviourGetInstance(address);
+    }
+
+    public static T* GetSingletonMonoBehaviourInstance<T>(string name, int symbolIndex = 0) where T : unmanaged => (T*)GetSingletonMonoBehaviourInstance(name, symbolIndex);
+    public static T* GetSingletonMonoBehaviourInstance<T>(int symbolIndex = 0) where T : unmanaged => (T*)GetSingletonMonoBehaviourInstance(typeof(T).Name, symbolIndex);
+
     [GameSymbol("UnityEngine.GameObject$$get_activeSelf")]
     private static delegate* unmanaged<GameObject*, nint, CBool> gameObjectGetActive;
     [GameSymbol("UnityEngine.GameObject$$get_activeInHierarchy")]
@@ -251,6 +263,22 @@ public static unsafe class GameInterop
         }
         return ret;
     }
+
+    private static readonly Dictionary<long, string> localizationCache = [];
+    [GameSymbol("Command.UI.LocalizeExtensions$$Get", Required = true)]
+    private static delegate* unmanaged<LocalizeTextCategory, long, nint, Unmanaged_String*> getLocalizedText;
+    public static string GetLocalizedText(LocalizeTextCategory category, long id)
+    {
+        if (localizationCache.TryGetValue(id, out var loc)) return loc;
+        loc = getLocalizedText(category, id, 0)->ToString();
+        if (loc != string.Empty)
+            localizationCache[id] = loc;
+        return loc;
+    }
+
+    public static string GetLocalizedText(long id) => localizationCache.TryGetValue(id, out var loc)
+        ? loc
+        : Enum.GetValues<LocalizeTextCategory>().Skip(1).Select(category => GetLocalizedText(category, id)).FirstOrDefault(str => str != string.Empty) ?? string.Empty;
 
     public static void RunOnUpdate(Action action)
     {
