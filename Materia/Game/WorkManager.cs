@@ -59,7 +59,7 @@ public static unsafe class WorkManager
     public static EnemyWork.EnemyStore* GetEnemyStore(long id) => NativePtr != null && getOrCreateEnemyStore != null ? getOrCreateEnemyStore(NativePtr->enemy, id, 0) : null;
 
     public static EventWork.EventBaseStore* GetEventBaseStore(long id) => NativePtr != null && getOrCreateEventBaseStore != null ? getOrCreateEventBaseStore(NativePtr->@event, id, 0) : null;
-    public static EventWork.EventDetailStore* GetEventDetailStore(long id) => NativePtr != null && getOrCreateEventDetailStore != null ? getOrCreateEventDetailStore(NativePtr->@event, id, 0) : null;
+    public static EventWork.EventDetailStore* GetEventDetailStore(long id, long displayConditionSetId) => NativePtr != null && getOrCreateEventDetailStore != null ? getOrCreateEventDetailStore(NativePtr->@event, id, displayConditionSetId, 0) : null;
     public static EventWork.EventDramaSelectionStore* GetEventDramaSelectionStore(long id) => NativePtr != null && getOrCreateEventDramaSelectionStore != null ? getOrCreateEventDramaSelectionStore(NativePtr->@event, id, 0) : null;
     public static EventWork.EventIdlingCollectStore* GetEventIdlingCollectStore(long id) => NativePtr != null && getOrCreateEventIdlingCollectStore != null ? getOrCreateEventIdlingCollectStore(NativePtr->@event, id, 0) : null;
     public static EventWork.EventSoloAreaGroupStore* GetEventSoloAreaGroupStore(long id) => NativePtr != null && getOrCreateEventSoloAreaGroupStore != null ? getOrCreateEventSoloAreaGroupStore(NativePtr->@event, id, 0) : null;
@@ -263,7 +263,7 @@ public static unsafe class WorkManager
     [GameSymbol("Command.Work.EventWork$$GetOrCreateEventBaseStore")]
     private static delegate* unmanaged<EventWork*, long, nint, EventWork.EventBaseStore*> getOrCreateEventBaseStore;
     [GameSymbol("Command.Work.EventWork$$GetOrCreateEventDetailStore")]
-    private static delegate* unmanaged<EventWork*, long, nint, EventWork.EventDetailStore*> getOrCreateEventDetailStore;
+    private static delegate* unmanaged<EventWork*, long, long, nint, EventWork.EventDetailStore*> getOrCreateEventDetailStore;
     [GameSymbol("Command.Work.EventWork$$GetOrCreateEventDramaSelectionStore")]
     private static delegate* unmanaged<EventWork*, long, nint, EventWork.EventDramaSelectionStore*> getOrCreateEventDramaSelectionStore;
     [GameSymbol("Command.Work.EventWork$$GetOrCreateEventIdlingCollectStore")]

@@ -19,7 +19,7 @@ public static unsafe class GameInterop
     private static readonly ConcurrentDictionary<string, nint> cachedInstanceStaticFields = new();
     private static readonly ConcurrentDictionary<(nint, nint), long> lastPressedButtons = new();
     private static readonly ConcurrentQueue<Action> onUpdate = new();
-    private static readonly List<(Action, Stopwatch, TimeSpan)> delayedOnUpdate = new();
+    private static readonly List<(Action, Stopwatch, TimeSpan)> delayedOnUpdate = [];
 
     //[Signature("E8 ?? ?? ?? ?? 48 63 CB 48 8D 55 08", ScanType = ScanType.Text)]
     //private static delegate* unmanaged<int, Il2CppClass*> getTypeInfo;

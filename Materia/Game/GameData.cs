@@ -10,9 +10,9 @@ public class Symbols
     public record struct GlobalSymbol(string Name, string Signature, int Offset);
     public record struct GlobalMethodSymbol(string Name, int Offset, int MethodOffset);
 
-    public MethodSymbol[] MethodSymbols { get; set; } = Array.Empty<MethodSymbol>();
-    public GlobalSymbol[] GlobalSymbols { get; set; } = Array.Empty<GlobalSymbol>();
-    public GlobalMethodSymbol[] GlobalMethodSymbols { get; set; } = Array.Empty<GlobalMethodSymbol>();
+    public MethodSymbol[] MethodSymbols { get; set; } = [];
+    public GlobalSymbol[] GlobalSymbols { get; set; } = [];
+    public GlobalMethodSymbol[] GlobalMethodSymbols { get; set; } = [];
     public int DllTimestamp { get; set; }
 }
 
