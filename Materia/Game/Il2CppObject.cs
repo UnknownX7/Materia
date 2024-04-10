@@ -18,6 +18,12 @@ public unsafe class Il2CppObject<T> : IDisposable where T : unmanaged
         gcHandle = new Il2CppGCHandle(ptr);
     }
 
+    public Il2CppObject(void* ptr)
+    {
+        Ptr = (T*)ptr;
+        gcHandle = new Il2CppGCHandle(ptr);
+    }
+
     public static implicit operator T*(Il2CppObject<T> p) => p.Ptr;
 
     public override string ToString() => $"{(nint)Ptr:X}<{typeof(T)}>";

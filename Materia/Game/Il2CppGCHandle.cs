@@ -1,9 +1,8 @@
 namespace Materia.Game;
 
-internal sealed unsafe class Il2CppGCHandle : IDisposable
+internal sealed unsafe class Il2CppGCHandle(void* ptr) : IDisposable
 {
-    private uint gcHandle;
-    public Il2CppGCHandle(void* ptr) => gcHandle = GameInterop.NewIl2CppGCHandle(ptr, false);
+    private uint gcHandle = GameInterop.NewIl2CppGCHandle(ptr, false);
     public void Dispose()
     {
         if (gcHandle == 0) return;
