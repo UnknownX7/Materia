@@ -17,16 +17,16 @@ internal sealed class ImGuiManager : IDisposable
 
     // TODO: This should be done in ImGuiScene, not here
     private readonly object drawLock = new();
-    private DeviceContext deviceContext = null!;
-    private RenderTargetView rtv = null!;
-    private ImGui_Impl_DX11 imguiRenderer = null!;
-    private ImGui_Input_Impl_Direct imguiInput = null!;
+    private DeviceContext deviceContext;
+    private RenderTargetView rtv;
+    private ImGui_Impl_DX11 imguiRenderer;
+    private ImGui_Input_Impl_Direct imguiInput;
     private int targetWidth;
     private int targetHeight;
 
-    public void Initialize(nint swapChain)
+    public ImGuiManager(SwapChain swapChain)
     {
-        scene = new RawDX11Scene(swapChain)
+        scene = new RawDX11Scene(swapChain.NativePointer)
         {
             UpdateCursor = false, // TODO: This doesn't work
             ImGuiIniPath = Path.Combine(Util.MateriaDirectory.FullName, "imgui.ini")
@@ -41,9 +41,8 @@ internal sealed class ImGuiManager : IDisposable
         imguiRenderer = (ImGui_Impl_DX11)sceneType.GetField(nameof(imguiRenderer), BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(scene)!;
         imguiInput = (ImGui_Input_Impl_Direct)sceneType.GetField(nameof(imguiInput), BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(scene)!;
 
-        var s = new SwapChain(swapChain);
-        targetWidth = s.Description.ModeDescription.Width;
-        targetHeight = s.Description.ModeDescription.Height;
+        targetWidth = swapChain.Description.ModeDescription.Width;
+        targetHeight = swapChain.Description.ModeDescription.Height;
 
         var io = ImGui.GetIO();
         io.SetPlatformImeDataFn = nint.Zero; // TODO: IME causes freezes
@@ -51,13 +50,10 @@ internal sealed class ImGuiManager : IDisposable
         io.FontGlobalScale = Materia.Config.UIScale;
     }
 
-    public void Render(nint swapChain)
+    public void Render()
     {
         lock (drawLock)
         {
-            if (scene == null)
-                Initialize(swapChain);
-
             imguiRenderer.NewFrame();
             //OnNewRenderFrame?.Invoke();
             imguiInput.NewFrame(targetWidth, targetHeight);

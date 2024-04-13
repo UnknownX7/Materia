@@ -62,7 +62,7 @@ internal static class Materia
 
             RenderManager = new RenderManager();
             InputManager = new InputManager(RenderManager.SwapChain);
-            ImGuiManager = new ImGuiManager();
+            ImGuiManager = new ImGuiManager(RenderManager.SwapChain);
             RenderManager.Present += ImGuiManager.Present;
             RenderManager.PreResizeBuffers += ImGuiManager.PreResizeBuffers;
             RenderManager.PostResizeBuffers += ImGuiManager.PostResizeBuffers;
@@ -91,7 +91,7 @@ internal static class Materia
                 InitializeSystems();
             GameInterop.Update();
             PluginManager.Update();
-            ImGuiManager?.Render(RenderManager!.SwapChain.NativePointer);
+            ImGuiManager?.Render();
             playerLoopHook!.Original();
         }
         catch (Exception e)
