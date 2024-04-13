@@ -87,11 +87,11 @@ internal static class Materia
 
         try
         {
-
             if (!systemsInitialized)
                 InitializeSystems();
             GameInterop.Update();
             PluginManager.Update();
+            ImGuiManager?.Render(RenderManager!.SwapChain.NativePointer);
             playerLoopHook!.Original();
         }
         catch (Exception e)
