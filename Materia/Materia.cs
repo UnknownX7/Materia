@@ -92,13 +92,13 @@ internal static class Materia
             GameInterop.Update();
             PluginManager.Update();
             ImGuiManager?.Render();
-            playerLoopHook!.Original();
         }
         catch (Exception e)
         {
             Logging.Error(e);
         }
 
+        playerLoopHook!.Original();
         CurrentUpdateThreadId = null;
     }
 

@@ -1,5 +1,6 @@
 using ECGen.Generated;
 using ECGen.Generated.Command.UI;
+using ECGen.Generated.Cysharp.Threading.Tasks;
 using ECGen.Generated.UnityEngine;
 using ImGuiNET;
 using Materia.Attributes;
@@ -235,4 +236,81 @@ public static unsafe class GameExtensions
     }
 
     public static Unmanaged_String* ToUnmanagedString(this string str) => GameInterop.CreateString(str);
+
+    public static short GetToken(this ref ECGen.Generated.Cysharp.Threading.Tasks.UniTask uniTask) => uniTask.token;
+
+    public static UniTaskStatus GetStatus(this ref ECGen.Generated.Cysharp.Threading.Tasks.UniTask uniTask)
+    {
+        if (uniTask.source == null) return UniTaskStatus.Succeeded;
+        var invokeData = GameInterop.GetVirtualFunctionByInterface<IUniTaskSource>(uniTask.source, 0);
+        return ((delegate* unmanaged<IUniTaskSource*, short, Il2CppMethodInfo*, UniTaskStatus>)invokeData->methodPtr)(uniTask.source, uniTask.GetToken(), invokeData->method);
+    }
+
+    public static void ContinueWith(this ref ECGen.Generated.Cysharp.Threading.Tasks.UniTask uniTask, Action a)
+    {
+        fixed (ECGen.Generated.Cysharp.Threading.Tasks.UniTask* ptr = &uniTask)
+            GameInterop.ContinueUniTaskWith(ptr, a);
+    }
+
+    internal static UniTask ToManagedUniTask(this ref ECGen.Generated.Cysharp.Threading.Tasks.UniTask uniTask)
+    {
+        fixed (ECGen.Generated.Cysharp.Threading.Tasks.UniTask* ptr = &uniTask)
+            return new UniTask(ptr);
+    }
+
+    public static short GetToken<T>(this ref ECGen.Generated.Cysharp.Threading.Tasks.UniTask<T> uniTask) where T : unmanaged
+    {
+        var type = typeof(T);
+        if (type.GetField(nameof(Il2CppObject.@class)) != null) return uniTask.token;
+        var size = sizeof(T);
+        var remainder = size % 2;
+        if (remainder > 0)
+            size += 2 - remainder;
+        var offset = 8 + size;
+        fixed (void* ptr = &uniTask)
+            return *(short*)((nint)ptr + offset);
+    }
+
+    public static UniTaskStatus GetStatus<T>(this ref ECGen.Generated.Cysharp.Threading.Tasks.UniTask<T> uniTask) where T : unmanaged
+    {
+        if (uniTask.source == null) return UniTaskStatus.Succeeded;
+        var invokeData = GameInterop.GetVirtualFunctionByInterface<IUniTaskSource>(uniTask.source, 0);
+        return ((delegate* unmanaged<IUniTaskSource*, short, Il2CppMethodInfo*, UniTaskStatus>)invokeData->methodPtr)((IUniTaskSource*)uniTask.source, uniTask.GetToken(), invokeData->method);
+    }
+
+    public static T GetResult<T>(this ref ECGen.Generated.Cysharp.Threading.Tasks.UniTask<T> uniTask) where T : unmanaged
+    {
+        fixed (ECGen.Generated.Cysharp.Threading.Tasks.UniTask<T>* ptr = &uniTask)
+        {
+            if (uniTask.source == null) return *(T*)&ptr->result;
+            var invokeData = GameInterop.GetVirtualFunctionByName(uniTask.source, "GetResult");
+            var result = ((delegate* unmanaged<void*, short, Il2CppMethodInfo*, nint>)invokeData->methodPtr)(uniTask.source, uniTask.GetToken(), invokeData->method);
+            return *(T*)&result;
+        }
+    }
+
+    public static T* GetResultPtr<T>(this ref ECGen.Generated.Cysharp.Threading.Tasks.UniTask<T> uniTask) where T : unmanaged
+    {
+        if (uniTask.source == null) return uniTask.result;
+        var invokeData = GameInterop.GetVirtualFunctionByName(uniTask.source, "GetResult");
+        return (T*)((delegate* unmanaged<void*, short, Il2CppMethodInfo*, nint>)invokeData->methodPtr)(uniTask.source, uniTask.GetToken(), invokeData->method);
+    }
+
+    public static void ContinueWith<T>(this ref ECGen.Generated.Cysharp.Threading.Tasks.UniTask<T> uniTask, Action<T> a) where T : unmanaged
+    {
+        fixed (ECGen.Generated.Cysharp.Threading.Tasks.UniTask<T>* ptr = &uniTask)
+            GameInterop.ContinueUniTaskWith(ptr, a);
+    }
+
+    public static void ContinueWithPtr<T>(this ref ECGen.Generated.Cysharp.Threading.Tasks.UniTask<T> uniTask, Action<Ptr<T>> a) where T : unmanaged
+    {
+        fixed (ECGen.Generated.Cysharp.Threading.Tasks.UniTask<T>* ptr = &uniTask)
+            GameInterop.ContinuePtrUniTaskWith(ptr, a);
+    }
+
+    internal static UniTask<T> ToManagedUniTask<T>(this ref ECGen.Generated.Cysharp.Threading.Tasks.UniTask<T> uniTask) where T : unmanaged
+    {
+        fixed (ECGen.Generated.Cysharp.Threading.Tasks.UniTask<T>* ptr = &uniTask)
+            return new UniTask<T>(ptr);
+    }
 }

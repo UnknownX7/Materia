@@ -8,6 +8,7 @@ using ECGen.Generated.Command.UI;
 using ECGen.Generated.UnityEngine;
 using PInvoke;
 using Materia.Attributes;
+using Materia.Utilities;
 
 namespace Materia.Game;
 
@@ -20,6 +21,7 @@ public static unsafe class GameInterop
     private static readonly ConcurrentDictionary<(nint, nint), long> lastPressedButtons = new();
     private static readonly ConcurrentQueue<Action> onUpdate = new();
     private static readonly List<(Action, Stopwatch, TimeSpan)> delayedOnUpdate = [];
+    private static readonly List<UniTaskContinuable> awaitedUniTasks = [];
 
     //[Signature("E8 ?? ?? ?? ?? 48 63 CB 48 8D 55 08", ScanType = ScanType.Text)]
     //private static delegate* unmanaged<int, Il2CppClass*> getTypeInfo;
@@ -67,6 +69,37 @@ public static unsafe class GameInterop
         var array = str.ToCharArray();
         fixed (char* ptr = array)
             return stringCtor(ptr, 0, array.Length, 0);
+    }
+
+    [Signature("48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 48 8B 39 48 8B D9 48 8B CF", Required = true)]
+    private static delegate* unmanaged<void*, Il2CppClass*, int, Il2CppVirtualInvokeData*> getGenericInterfaceVirtualFunction;
+
+    public static Il2CppVirtualInvokeData* GetVirtualFunctionByInterface<T>(void* o, int slot) where T : unmanaged
+    {
+        var interfaceTypeInfo = GetTypeInfo<T>();
+        var @class = *(Il2CppClass**)o;
+        var interfaceOffsets = @class->interfaceOffsets;
+        for (int i = 0; i < @class->interfaceOffsetsCount; i++)
+        {
+            var interfaceOffset = interfaceOffsets[i];
+            if (interfaceOffset.interfaceType != interfaceTypeInfo) continue;
+            var vtbl = (Il2CppVirtualInvokeData*)(@class + 1);
+            return vtbl + (slot + interfaceOffset.offset);
+        }
+        return getGenericInterfaceVirtualFunction(o, interfaceTypeInfo, slot);
+    }
+
+    public static Il2CppVirtualInvokeData* GetVirtualFunctionByName(void* o, string name)
+    {
+        var @class = *(Il2CppClass**)o;
+        var vtbl = (Il2CppVirtualInvokeData*)(@class + 1);
+        for (int i = 0; i < @class->vtableCount; i++)
+        {
+            var invokeData = vtbl + i;
+            if (Util.ReadCString(invokeData->method->name) == name)
+                return invokeData;
+        }
+        return null;
     }
 
     public static nint GetSharedMonoBehaviourInstance(string name, int symbolIndex = 0)
@@ -267,7 +300,7 @@ public static unsafe class GameInterop
     private static readonly Dictionary<long, string> localizationCache = [];
     [GameSymbol("Command.UI.LocalizeExtensions$$Get", Required = true)]
     private static delegate* unmanaged<LocalizeTextCategory, long, nint, Unmanaged_String*> getLocalizedText;
-    public static string GetLocalizedText(LocalizeTextCategory category, long id)
+    public static string GetLocalizedText(LocalizeTextCategory category, long id) // TODO: Can crash if the game hasn't loaded yet?
     {
         if (localizationCache.TryGetValue(id, out var loc)) return loc;
         loc = getLocalizedText(category, id, 0)->ToString();
@@ -296,6 +329,30 @@ public static unsafe class GameInterop
 
     public static void RunOnUpdate(Action action, uint delayMs) => RunOnUpdate(action, TimeSpan.FromMilliseconds(delayMs));
 
+    internal static void ContinueUniTaskWith(ECGen.Generated.Cysharp.Threading.Tasks.UniTask* uniTask, Action a)
+    {
+        var continuable = new UniTaskContinuable(uniTask, a);
+        if (continuable.CheckInvoke()) return;
+        lock (awaitedUniTasks)
+            awaitedUniTasks.Add(continuable);
+    }
+
+    internal static void ContinueUniTaskWith<T>(ECGen.Generated.Cysharp.Threading.Tasks.UniTask<T>* uniTask, Action<T> a) where T : unmanaged
+    {
+        var continuable = new UniTaskContinuable((ECGen.Generated.Cysharp.Threading.Tasks.UniTask*)uniTask, a);
+        if (continuable.CheckInvoke()) return;
+        lock (awaitedUniTasks)
+            awaitedUniTasks.Add(continuable);
+    }
+
+    internal static void ContinuePtrUniTaskWith<T>(ECGen.Generated.Cysharp.Threading.Tasks.UniTask<T>* uniTask, Action<Ptr<T>> a) where T : unmanaged
+    {
+        var continuable = new UniTaskContinuable((ECGen.Generated.Cysharp.Threading.Tasks.UniTask*)uniTask, a);
+        if (continuable.CheckInvoke()) return;
+        lock (awaitedUniTasks)
+            awaitedUniTasks.Add(continuable);
+    }
+
     internal static void Update()
     {
         while (onUpdate.TryDequeue(out var action))
@@ -307,8 +364,35 @@ public static unsafe class GameInterop
             {
                 var (action, stopwatch, delay) = delayedOnUpdate[i];
                 if (stopwatch.Elapsed < delay) continue;
-                action.Invoke();
+
+                try
+                {
+                    action.Invoke();
+                }
+                catch (Exception e)
+                {
+                    Logging.Error($"An exception occured in an update action\n{e}");
+                }
+
                 delayedOnUpdate.RemoveAt(i--);
+            }
+        }
+
+        lock (awaitedUniTasks)
+        {
+            for (int i = 0; i < awaitedUniTasks.Count; i++)
+            {
+                try
+                {
+                    if (awaitedUniTasks[i].CheckInvoke())
+                        awaitedUniTasks.RemoveAt(i--);
+                }
+                catch (Exception e)
+                {
+                    Logging.Error($"An exception occured in an awaited UniTask\n{e}");
+                    awaitedUniTasks[i].Dispose();
+                    awaitedUniTasks.RemoveAt(i--);
+                }
             }
         }
     }
