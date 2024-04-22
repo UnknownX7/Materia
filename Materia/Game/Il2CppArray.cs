@@ -16,6 +16,14 @@ public unsafe class Il2CppArray<T> : IDisposable where T : unmanaged
             gcHandle = new Il2CppGCHandle(Ptr);
     }
 
+    public Il2CppArray(T item, bool managed = false)
+    {
+        Ptr = (Unmanaged_Array<T>*)GameInterop.NewIl2CppArray(Il2CppType<T>.NativePtr, 1);
+        ((T*)Ptr->items)[0] = item;
+        if (managed)
+            gcHandle = new Il2CppGCHandle(Ptr);
+    }
+
     public Il2CppArray(IReadOnlyList<T> array, bool managed = false)
     {
         Ptr = (Unmanaged_Array<T>*)GameInterop.NewIl2CppArray(Il2CppType<T>.NativePtr, array.Count);
@@ -25,11 +33,28 @@ public unsafe class Il2CppArray<T> : IDisposable where T : unmanaged
             gcHandle = new Il2CppGCHandle(Ptr);
     }
 
+    public Il2CppArray(T* item, bool managed = false)
+    {
+        Ptr = (Unmanaged_Array<T>*)GameInterop.NewIl2CppArray(Il2CppType<T>.NativePtr, 1);
+        Ptr->items[0] = (long)item;
+        if (managed)
+            gcHandle = new Il2CppGCHandle(Ptr);
+    }
+
     public Il2CppArray(T*[] array, bool managed = false)
     {
         Ptr = (Unmanaged_Array<T>*)GameInterop.NewIl2CppArray(Il2CppType<T>.NativePtr, array.Length);
         for (int i = 0; i < array.Length; i++)
             Ptr->items[i] = (long)array[i];
+        if (managed)
+            gcHandle = new Il2CppGCHandle(Ptr);
+    }
+
+    public Il2CppArray(IReadOnlyList<Ptr<T>> array, bool managed = false)
+    {
+        Ptr = (Unmanaged_Array<T>*)GameInterop.NewIl2CppArray(Il2CppType<T>.NativePtr, array.Count);
+        for (int i = 0; i < array.Count; i++)
+            Ptr->items[i] = array[i];
         if (managed)
             gcHandle = new Il2CppGCHandle(Ptr);
     }
