@@ -46,6 +46,10 @@ public static unsafe class GameInterop
     private static delegate* unmanaged<Il2CppClass*, void*> il2cppObjectNew;
     internal static void* NewIl2CppObject(Il2CppClass* @class) => il2cppObjectNew(@class);
 
+    [Signature("E8 ?? ?? ?? ?? 4C 63 03", ScanType = ScanType.Text, Required = true)] // E8 ?? ?? ?? ?? 4C 8B F8 40 84 F6 74 11
+    private static delegate* unmanaged<Il2CppClass*, long, void*> il2cppArrayNew;
+    internal static void* NewIl2CppArray(Il2CppClass* @class, int size) => il2cppArrayNew(@class, size);
+
     [Signature("0F B6 C2 4C 8B C9 45 33 C0", Required = true)]
     private static delegate* unmanaged<void*, CBool, uint> il2cppGCHandleNew;
     internal static uint NewIl2CppGCHandle(void* ptr, bool pinned) => il2cppGCHandleNew(ptr, pinned);
