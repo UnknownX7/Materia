@@ -25,6 +25,7 @@ public unsafe class ScreenManager
     public ECGen.Generated.Command.UI.ScreenManager* NativePtr { get; private set; }
     public Screen? CurrentScreen => Screen.CreateInstance(NativePtr->currentScreen);
     public bool IsBlocking => NativePtr->isBlocking is var isBlocking && isBlocking != null && isBlocking->GetValue();
+    public bool InTransition => NativePtr->inTransition || CurrentScreen == null;
     private ScreenManager() { }
 
     public Screen<T>? GetCurrentScreen<T>() where T : unmanaged
