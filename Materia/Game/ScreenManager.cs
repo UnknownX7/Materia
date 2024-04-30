@@ -1,3 +1,5 @@
+using ECGen.Generated;
+using ECGen.Generated.Command.Enums;
 using ECGen.Generated.Command.UI;
 using ECGen.Generated.System;
 using Materia.Attributes;
@@ -42,5 +44,37 @@ public unsafe class ScreenManager
         var screen = Screen.CreateInstance(ret)!;
         Materia.PluginManager.InvokeAll(p => p.PluginServiceManager?.EventHandler.InvokeScreenCreated(screen), nameof(PluginEventHandler.ScreenCreated));
         return ret;
+    }
+
+    [GameSymbol("Command.OutGame.TransitionUtility$$CanTransition")]
+    private static delegate* unmanaged<TransitionType, long, nint, CBool> canTransition;
+    public static bool CanTransition(TransitionType transitionType, long id = 0)
+    {
+        try
+        {
+            return canTransition(transitionType, id, 0);
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    [GameSymbol("Command.OutGame.TransitionUtility$$TransitionAsync", ReturnPointer = true)]
+    private static delegate* unmanaged<ECGen.Generated.Cysharp.Threading.Tasks.UniTask<bool>*, int, TransitionType, long, void*, nint, ECGen.Generated.Cysharp.Threading.Tasks.UniTask<bool>*> transitionAsync;
+    public static bool TransitionAsync(TransitionType transitionType, long id = 0, Action<bool>? continueWith = null)
+    {
+        try
+        {
+            var ret = new Il2CppObject<ECGen.Generated.Cysharp.Threading.Tasks.UniTask<bool>>();
+            transitionAsync(ret, 0, transitionType, id, null, 0);
+            if (continueWith != null)
+                ret.Ptr->ContinueWith(continueWith);
+            return ret.Ptr->source != null || (long)ret.Ptr->result != 0;
+        }
+        catch
+        {
+            return false;
+        }
     }
 }

@@ -1,3 +1,4 @@
+using ECGen.Generated;
 using ECGen.Generated.Command.UI;
 using Materia.Attributes;
 using Materia.Plugin;
@@ -57,5 +58,21 @@ public unsafe class ModalManager
         SetStatusChangeEventHook!.Original(modalManager, modalInfo, method);
         var modal = Modal.CreateInstance(modalInfo->modal)!;
         Materia.PluginManager.InvokeAll(p => p.PluginServiceManager?.EventHandler.InvokeModalCreated(modal), nameof(PluginEventHandler.ModalCreated));
+    }
+
+    [GameSymbol("Command.DialogUtility$$OpenYesNoDialogAsync_1", ReturnPointer = true)]
+    private static delegate* unmanaged<void*, int, ECGen.Generated.Command.UI.ModalManager*, Unmanaged_String*, Unmanaged_String*, Unmanaged_String*, Unmanaged_String*, nint, ECGen.Generated.Cysharp.Threading.Tasks.UniTask<bool>*> openYesNoDialogAsync;
+    public ECGen.Generated.Cysharp.Threading.Tasks.UniTask<bool>* OpenYesNoDialog(string title, string message, string? positiveButtonLabel = null, string? negativeButtonLabel = null)
+    {
+        var ret = new Il2CppObject<ECGen.Generated.Cysharp.Threading.Tasks.UniTask<bool>>();
+        return openYesNoDialogAsync(ret, 0, NativePtr, GameInterop.CreateString(title), GameInterop.CreateString(message), GameInterop.CreateString(positiveButtonLabel ?? GameInterop.GetLocalizedText(LocalizeTextCategory.Common, 100001)), GameInterop.CreateString(negativeButtonLabel ?? GameInterop.GetLocalizedText(LocalizeTextCategory.Common, 100002)), 0);
+    }
+
+    [GameSymbol("Command.DialogUtility$$OpenCloseOnlyDialogAsync_2", ReturnPointer = true)]
+    private static delegate* unmanaged<void*, int, ECGen.Generated.Command.UI.ModalManager*, Unmanaged_String*, Unmanaged_String*, Unmanaged_String*, Unmanaged_String*, int, nint, ECGen.Generated.Cysharp.Threading.Tasks.UniTask*> openCloseOnlyDialogAsync;
+    public ECGen.Generated.Cysharp.Threading.Tasks.UniTask* OpenCloseOnlyDialog(string title, string message, string subMessage = "", string? buttonLabel = null)
+    {
+        var ret = new Il2CppObject<ECGen.Generated.Cysharp.Threading.Tasks.UniTask>();
+        return openCloseOnlyDialogAsync(ret, 0, NativePtr, GameInterop.CreateString(title), GameInterop.CreateString(message), GameInterop.CreateString(subMessage), GameInterop.CreateString(buttonLabel ?? GameInterop.GetLocalizedText(LocalizeTextCategory.Common, 100005)), 2, 0);
     }
 }

@@ -317,33 +317,6 @@ public static unsafe class GameInterop
         ? loc
         : Enum.GetValues<LocalizeTextCategory>().Skip(1).Select(category => GetLocalizedText(category, id)).FirstOrDefault(str => str != string.Empty) ?? string.Empty;
 
-    [GameSymbol("Command.DialogUtility$$OpenYesNoDialogAsync_1", ReturnPointer = true)]
-    private static delegate* unmanaged<void*, int, ECGen.Generated.Command.UI.ModalManager*, Unmanaged_String*, Unmanaged_String*, Unmanaged_String*, Unmanaged_String*, nint, ECGen.Generated.Cysharp.Threading.Tasks.UniTask<bool>*> openYesNoDialogAsync;
-    public static ECGen.Generated.Cysharp.Threading.Tasks.UniTask<bool>* OpenYesNoDialog(string title, string message, string? positiveButtonLabel = null, string? negativeButtonLabel = null)
-    {
-        if (ModalManager.Instance is not { } modalManager) return null;
-        var ret = new Il2CppObject<ECGen.Generated.Cysharp.Threading.Tasks.UniTask<bool>>();
-        return openYesNoDialogAsync(ret, 0, modalManager.NativePtr, CreateString(title), CreateString(message), CreateString(positiveButtonLabel ?? GetLocalizedText(LocalizeTextCategory.Common, 100001)), CreateString(negativeButtonLabel ?? GetLocalizedText(LocalizeTextCategory.Common, 100002)), 0);
-    }
-
-    [GameSymbol("Command.DialogUtility$$OpenCloseOnlyDialogAsync_2", ReturnPointer = true)]
-    private static delegate* unmanaged<void*, int, ECGen.Generated.Command.UI.ModalManager*, Unmanaged_String*, Unmanaged_String*, Unmanaged_String*, Unmanaged_String*, int, nint, ECGen.Generated.Cysharp.Threading.Tasks.UniTask*> openCloseOnlyDialogAsync;
-    public static ECGen.Generated.Cysharp.Threading.Tasks.UniTask* OpenCloseOnlyDialog(string title, string message, string subMessage = "", string? buttonLabel = null)
-    {
-        if (ModalManager.Instance is not { } modalManager) return null;
-        var ret = new Il2CppObject<ECGen.Generated.Cysharp.Threading.Tasks.UniTask>();
-        return openCloseOnlyDialogAsync(ret, 0, modalManager.NativePtr, CreateString(title), CreateString(message), CreateString(subMessage), CreateString(buttonLabel ?? GetLocalizedText(LocalizeTextCategory.Common, 100005)), 2, 0);
-    }
-
-    [GameSymbol("Command.UI.InformationManager$$PlayAsync", ReturnPointer = true)]
-    private static delegate* unmanaged<void*, IInformationManager*, int, int, Unmanaged_String*, Unmanaged_String*, CBool, int, nint, ECGen.Generated.Cysharp.Threading.Tasks.UniTask*> informationManagerPlayAsync;
-    public static ECGen.Generated.Cysharp.Threading.Tasks.UniTask* ShowInfoBanner(string message, string subMessage = "", int type = 0, bool isForceTapWait = false)
-    {
-        if (UISystem.NativePtr->informationManager == null) return null;
-        var ret = new Il2CppObject<ECGen.Generated.Cysharp.Threading.Tasks.UniTask>();
-        return informationManagerPlayAsync(ret, UISystem.NativePtr->informationManager, 0, type, CreateString(message), CreateString(subMessage), isForceTapWait, 2, 0);
-    }
-
     public static void RunOnUpdate(Action action)
     {
         if (IsInUpdateThread)
