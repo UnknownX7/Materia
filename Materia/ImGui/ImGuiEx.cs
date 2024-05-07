@@ -212,6 +212,16 @@ public static partial class ImGuiEx
         return ret;
     }
 
+    public static bool Combo<T>(string label, ref T e, int popupItemHeight = -1) where T : struct, Enum
+    {
+        var names = Enum.GetNames<T>();
+        var i = Array.IndexOf(names, Enum.GetName(e));
+        var ret = ImGui.Combo(label, ref i, names.Select(name => typeof(T).GetField(name)?.GetCustomAttribute<DisplayAttribute>()?.Name ?? name).ToArray(), names.Length, popupItemHeight);
+        if (ret)
+            e = Enum.Parse<T>(names[i]);
+        return ret;
+    }
+
     public static bool CheckboxTristate(string label, ref bool? v)
     {
         bool ret;

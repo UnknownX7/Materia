@@ -74,6 +74,13 @@ public static unsafe class WorkManager
     public static EventWork.LibraStore* GetLibraStore(long id) => NativePtr != null && getOrCreateLibraStore != null ? getOrCreateLibraStore(NativePtr->@event, id, 0) : null;
     public static EventWork.LibraCardStore* GetLibraCardStore(long id) => NativePtr != null && getOrCreateLibraCardStore != null ? getOrCreateLibraCardStore(NativePtr->@event, id, 0) : null;
     public static EventWork.LibraCardSettingStore* GetLibraCardSettingStore(long id) => NativePtr != null && getOrCreateLibraCardSettingStore != null ? getOrCreateLibraCardSettingStore(NativePtr->@event, id, 0) : null;
+    public static Unmanaged_IReadOnlyList<IEventBonusEffectInfo>* GetEventBonusEffectInfos(long eventBaseId, IPartyCharacterInfo* partyCharacterInfo) => NativePtr != null && getEventBonusEffectInfos != null ? getEventBonusEffectInfos(NativePtr->@event, eventBaseId, partyCharacterInfo, 0) : null;
+
+    public static HighwindWork.HighwindPartsStore* GetHighwindPartsStore(long id) => NativePtr != null && getOrCreateHighwindPartsStore != null ? getOrCreateHighwindPartsStore(NativePtr->highwind, id, 0) : null;
+    public static HighwindWork.HighwindBattleStore* GetHighwindBattleStore(long id) => NativePtr != null && getOrCreateHighwindBattleStore != null ? getOrCreateHighwindBattleStore(NativePtr->highwind, id, 0) : null;
+    public static HighwindWork.HighwindKeyItemStore* GetHighwindKeyItemStore(long id) => NativePtr != null && getOrCreateHighwindKeyItemStore != null ? getOrCreateHighwindKeyItemStore(NativePtr->highwind, id, 0) : null;
+    public static HighwindWork.HighwindKeyItemEffectStore* GetHighwindKeyItemEffectStore(long id) => NativePtr != null && getOrCreateHighwindKeyItemEffectStore != null ? getOrCreateHighwindKeyItemEffectStore(NativePtr->highwind, id, 0) : null;
+    public static HighwindWork.HighwindKeyItemRankUpgradeStore* GetHighwindKeyItemRankUpgradeStore(long id) => NativePtr != null && getOrCreateHighwindKeyItemRankUpgradeStore != null ? getOrCreateHighwindKeyItemRankUpgradeStore(NativePtr->highwind, id, 0) : null;
 
     public static InstantItemWork.InstantItemStore* GetInstantItemStore(long id) => NativePtr != null && getOrCreateInstantItemStore != null ? getOrCreateInstantItemStore(NativePtr->instantItem, id, 0) : null;
 
@@ -292,6 +299,19 @@ public static unsafe class WorkManager
     private static delegate* unmanaged<EventWork*, long, nint, EventWork.LibraCardStore*> getOrCreateLibraCardStore;
     [GameSymbol("Command.Work.EventWork$$GetOrCreateLibraCardSettingStore")]
     private static delegate* unmanaged<EventWork*, long, nint, EventWork.LibraCardSettingStore*> getOrCreateLibraCardSettingStore;
+    [GameSymbol("Command.Work.EventWork$$GetEventBonusEffectInfos")]
+    private static delegate* unmanaged<EventWork*, long, IPartyCharacterInfo*, nint, Unmanaged_IReadOnlyList<IEventBonusEffectInfo>*> getEventBonusEffectInfos;
+
+    [GameSymbol("Command.Work.HighwindWork$$GetOrCreateHighwindPartsStore_1")]
+    private static delegate* unmanaged<HighwindWork*, long, nint, HighwindWork.HighwindPartsStore*> getOrCreateHighwindPartsStore;
+    [GameSymbol("Command.Work.HighwindWork$$GetOrCreateHighwindBattleStore")]
+    private static delegate* unmanaged<HighwindWork*, long, nint, HighwindWork.HighwindBattleStore*> getOrCreateHighwindBattleStore;
+    [GameSymbol("Command.Work.HighwindWork$$GetOrCreateHighwindKeyItemStore")]
+    private static delegate* unmanaged<HighwindWork*, long, nint, HighwindWork.HighwindKeyItemStore*> getOrCreateHighwindKeyItemStore;
+    [GameSymbol("Command.Work.HighwindWork$$GetOrCreateHighwindKeyItemEffectStore")]
+    private static delegate* unmanaged<HighwindWork*, long, nint, HighwindWork.HighwindKeyItemEffectStore*> getOrCreateHighwindKeyItemEffectStore;
+    [GameSymbol("Command.Work.HighwindWork$$GetOrCreateHighwindKeyItemRankUpgradeStore")]
+    private static delegate* unmanaged<HighwindWork*, long, nint, HighwindWork.HighwindKeyItemRankUpgradeStore*> getOrCreateHighwindKeyItemRankUpgradeStore;
 
     [GameSymbol("Command.Work.InstantItemWork$$GetOrCreateInstantItemStore")]
     private static delegate* unmanaged<InstantItemWork*, long, nint, InstantItemWork.InstantItemStore*> getOrCreateInstantItemStore;
