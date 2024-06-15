@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SDL2-CS", "deps\ImGuiScene\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ImGui.NET-472", "deps\ImGuiScene\deps\ImGui.NET\src\ImGui.NET-472\ImGui.NET-472.csproj", "{6EAC5B45-284B-4690-ABC3-F972DFB52B5B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Materia.Updater", "Materia.Updater\Materia.Updater.csproj", "{021C9DBD-DE8D-455C-A131-2BDB3D6C0B11}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,14 @@ Global
 		{6EAC5B45-284B-4690-ABC3-F972DFB52B5B}.Release|Any CPU.Build.0 = Release|x64
 		{6EAC5B45-284B-4690-ABC3-F972DFB52B5B}.Release|x64.ActiveCfg = Release|x64
 		{6EAC5B45-284B-4690-ABC3-F972DFB52B5B}.Release|x64.Build.0 = Release|x64
+		{021C9DBD-DE8D-455C-A131-2BDB3D6C0B11}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{021C9DBD-DE8D-455C-A131-2BDB3D6C0B11}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{021C9DBD-DE8D-455C-A131-2BDB3D6C0B11}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{021C9DBD-DE8D-455C-A131-2BDB3D6C0B11}.Debug|x64.Build.0 = Debug|Any CPU
+		{021C9DBD-DE8D-455C-A131-2BDB3D6C0B11}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{021C9DBD-DE8D-455C-A131-2BDB3D6C0B11}.Release|Any CPU.Build.0 = Release|Any CPU
+		{021C9DBD-DE8D-455C-A131-2BDB3D6C0B11}.Release|x64.ActiveCfg = Release|Any CPU
+		{021C9DBD-DE8D-455C-A131-2BDB3D6C0B11}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
