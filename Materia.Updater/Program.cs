@@ -112,8 +112,8 @@ internal class Program
             if (!libDirectory.Exists)
                 libDirectory.Create();
 
-            DownloadFile($"{latestECGenPath}{symbolsFile}", Path.Combine(materiaDirectory.FullName, symbolsFile));
             DownloadFile($"{latestECGenPath}{genDll}", Path.Combine(libDirectory.FullName, genDll));
+            DownloadFile($"{latestECGenPath}{symbolsFile}", Path.Combine(materiaDirectory.FullName, symbolsFile));
         }
         catch (Exception e)
         {
@@ -130,7 +130,7 @@ internal class Program
     private static byte[] DownloadBytes(string uri)
     {
         using var request = new HttpRequestMessage(HttpMethod.Get, uri);
-        using var response = httpClient.Send(request);
+        using var response = httpClient.Send(request).EnsureSuccessStatusCode();
         return response.Content.ReadAsByteArrayAsync().Result;
     }
 }
