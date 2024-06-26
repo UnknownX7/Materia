@@ -10,6 +10,8 @@ namespace Materia;
 
 internal static class Materia
 {
+    private const string updaterName = $"{nameof(Materia)}.Updater";
+
     public static MateriaConfig Config { get; } = PluginConfiguration.Load<MateriaConfig>(Path.Combine(Util.MateriaDirectory.FullName, $"{nameof(Materia)}.json"));
     public static PluginManager PluginManager { get; } = new();
     public static RenderManager? RenderManager { get; private set; }
@@ -28,14 +30,27 @@ internal static class Materia
     {
         try
         {
+            foreach (var file in Util.MateriaDirectory.GetFiles().Where(file => file.Name.StartsWith(updaterName) && file.Extension == ".new"))
+                file.MoveTo(Path.Combine(file.DirectoryName!, Path.GetFileNameWithoutExtension(file.Name)), true);
+
             stopCrashHandlerTask = StopCrashHandlerAsync();
 
             if (!GameData.CheckVersion())
             {
-                var result = User32.MessageBox(IntPtr.Zero, $"The installed {nameof(Materia)} Framework version is incompatible with the current game version, allowing the game to continue may be unsafe.\nContinue?",
-                    $"{nameof(Materia)} Framework", User32.MessageBoxOptions.MB_YESNO | User32.MessageBoxOptions.MB_ICONEXCLAMATION);
-                if (result != User32.MessageBoxResult.IDYES)
-                    Environment.Exit(0);
+                var result = User32.MessageBox(IntPtr.Zero, $"The installed {nameof(Materia)} Framework version is incompatible with the current game version, allowing the game to continue may be unsafe.\nWould you like to run the auto updater to check for updates? Press Cancel to close the game.",
+                    $"{nameof(Materia)} Framework", User32.MessageBoxOptions.MB_YESNOCANCEL | User32.MessageBoxOptions.MB_ICONEXCLAMATION);
+
+                switch (result)
+                {
+                    case User32.MessageBoxResult.IDYES:
+                        Process.Start(new ProcessStartInfo(Path.Combine(Util.MateriaDirectory.FullName, $"{updaterName}.exe")) { UseShellExecute = true });
+                        Environment.Exit(0);
+                        break;
+                    case User32.MessageBoxResult.IDCANCEL:
+                        Environment.Exit(0);
+                        break;
+                }
+
                 return;
             }
 
