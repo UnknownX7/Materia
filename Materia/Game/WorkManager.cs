@@ -110,7 +110,7 @@ public static unsafe class WorkManager
     public static PartyWork.PartyGroupStore* GetPartyGroupStore(long id) => NativePtr != null && getOrCreatePartyGroupStore != null ? getOrCreatePartyGroupStore(NativePtr->party, id, 0) : null;
     public static PartyWork.PartyStore* GetPartyStore(long id, bool createDefault) => NativePtr != null && getOrCreatePartyStore != null ? getOrCreatePartyStore(NativePtr->party, id, createDefault, 0) : null;
     public static PartyWork.PartyCharacterStore* GetPartyCharacterStore(long partyMemberId, long idx, bool createDefault) => NativePtr != null && getOrCreatePartyCharacterStore != null ? getOrCreatePartyCharacterStore(NativePtr->party, partyMemberId, idx, createDefault, 0) : null;
-    public static PartyCharacterInfo* GetStatusParamInfo(PartyCharacterInfo* info) => NativePtr != null && getStatusParamInfo != null ? getStatusParamInfo(NativePtr->party, info, null, 0) : null;
+    public static PartyCharacterInfo* GetStatusParamInfo(PartyCharacterInfo* info) => NativePtr != null && getStatusParamInfo != null ? getStatusParamInfo(NativePtr->party, info, null, null, 0) : null;
 
     public static ResetWork.ResetStore* GetResetStore(long id) => NativePtr != null && getOrCreateResetStore != null ? getOrCreateResetStore(NativePtr->reset, id, 0) : null;
     public static TimeSpan GetTimeUntilReset(long resetId)
@@ -365,7 +365,7 @@ public static unsafe class WorkManager
     [GameSymbol("Command.Work.PartyWork$$GetOrCreatePartyCharacterStore")]
     private static delegate* unmanaged<PartyWork*, long, long, CBool, nint, PartyWork.PartyCharacterStore*> getOrCreatePartyCharacterStore;
     [GameSymbol("Command.Work.PartyWork$$GetStatusParamInfo")]
-    private static delegate* unmanaged<PartyWork*, PartyCharacterInfo*, Unmanaged_List<PassiveSkillEffectInfo>*, nint, PartyCharacterInfo*> getStatusParamInfo;
+    private static delegate* unmanaged<PartyWork*, PartyCharacterInfo*, Unmanaged_List<PassiveSkillEffectInfo>*, Unmanaged_IReadOnlyList<ISkillArmouryInfo>*, nint, PartyCharacterInfo*> getStatusParamInfo;
 
     [GameSymbol("Command.Work.ResetWork$$GetOrCreateResetStore")]
     private static delegate* unmanaged<ResetWork*, long, nint, ResetWork.ResetStore*> getOrCreateResetStore;
