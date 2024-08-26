@@ -10,8 +10,6 @@ namespace Materia;
 
 internal static class Materia
 {
-    private const string updaterName = $"{nameof(Materia)}.Updater";
-
     public static MateriaConfig Config { get; } = PluginConfiguration.Load<MateriaConfig>(Path.Combine(Util.MateriaDirectory.FullName, $"{nameof(Materia)}.json"));
     public static PluginManager PluginManager { get; } = new();
     public static RenderManager? RenderManager { get; private set; }
@@ -30,9 +28,6 @@ internal static class Materia
     {
         try
         {
-            foreach (var file in Util.MateriaDirectory.GetFiles().Where(file => file.Name.StartsWith(updaterName) && file.Extension == ".new"))
-                file.MoveTo(Path.Combine(file.DirectoryName!, Path.GetFileNameWithoutExtension(file.Name)), true);
-
             stopCrashHandlerTask = StopCrashHandlerAsync();
 
             if (!GameData.CheckVersion())
@@ -43,7 +38,8 @@ internal static class Materia
                 switch (result)
                 {
                     case User32.MessageBoxResult.IDYES:
-                        Process.Start(new ProcessStartInfo(Path.Combine(Util.MateriaDirectory.FullName, $"{updaterName}.exe")) { UseShellExecute = true });
+                        var updater = new Updater();
+                        updater.Update();
                         Environment.Exit(0);
                         break;
                     case User32.MessageBoxResult.IDCANCEL:

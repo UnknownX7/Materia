@@ -18,6 +18,10 @@ public static partial class Util
     [return: MarshalAs(UnmanagedType.Bool)]
     private static partial bool WriteProcessMemory(int hProcess, nint lpBaseAddress, byte[] lpBuffer, int dwSize, ref int lpNumberOfBytesWritten);
 
+    [LibraryImport("kernel32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    internal static partial bool AllocConsole();
+
     public static DirectoryInfo MateriaDirectory { get; } = new(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!);
     public static DirectoryInfo PluginDirectory { get; } = new(Path.Combine(MateriaDirectory.FullName, "plugins"));
     public static DirectoryInfo ConfigDirectory { get; } = new(Path.Combine(MateriaDirectory.FullName, "configs"));
