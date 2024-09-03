@@ -1,4 +1,6 @@
-﻿using System.IO.Compression;
+﻿using System.Diagnostics;
+using System.IO.Compression;
+using System.Text;
 using Materia.Utilities;
 using PInvoke;
 
@@ -48,7 +50,7 @@ internal class Updater
             }
 
             User32.MessageBox(IntPtr.Zero, "Update download has finished, the game will now relaunch.", $"{nameof(Materia)} Framework", User32.MessageBoxOptions.MB_ICONINFORMATION);
-            // TODO: Launch command to move directory and close game
+            FinishUpdating();
         }
         catch (Exception e)
         {
@@ -116,5 +118,35 @@ internal class Updater
         using var request = new HttpRequestMessage(HttpMethod.Get, uri);
         using var response = httpClient.Send(request).EnsureSuccessStatusCode();
         return response.Content.ReadAsByteArrayAsync().Result;
+    }
+
+    private static void FinishUpdating()
+    {
+        Process.Start(new ProcessStartInfo("cmd.exe")
+        {
+            Arguments = BuildCmdArg("timeout 2",
+                $"move /Y \"{Path.Combine(updateDirectory.FullName, "*")}\" \"{Util.MateriaDirectory.FullName}\"", // TODO: Make recursive for subdirectories
+                $"move /Y \"{Path.Combine(updateLibDirectory.FullName, "*")}\" \"{Path.Combine(Util.MateriaDirectory.FullName, "lib")}\"",
+                $"rmdir /S /Q \"{updateDirectory.FullName}\"",
+                $"\"{Path.Combine(Util.GameDirectory.FullName, "FF7EC.exe")}\""),
+            UseShellExecute = true,
+            WorkingDirectory = Util.MateriaDirectory.FullName
+        });
+    }
+
+    private static string BuildCmdArg(params string[] args)
+    {
+        var arg = new StringBuilder("/C ");
+
+        for (int i = 0; i < args.Length; i++)
+        {
+            if (i != 0)
+                arg.Append(" & ");
+            arg.Append('(');
+            arg.Append(args[i]);
+            arg.Append(')');
+        }
+
+        return arg.ToString();
     }
 }
