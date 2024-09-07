@@ -1,11 +1,9 @@
 set PROJECT=Materia
-set UPDATER=%PROJECT%.Updater
 set OUTPUT=dist
 
 rmdir /s /q %OUTPUT%
 mkdir %OUTPUT%
 dotnet publish %PROJECT% -c Release -r win-x64 --sc -o %OUTPUT%\lib
-dotnet publish %UPDATER% -c Release -r win-x64 --no-self-contained -p:PublishSingleFile=true -o %OUTPUT%
 move /y %OUTPUT%\lib\runtimes\win-x64\native\* %OUTPUT%\lib
 rmdir /s /q %OUTPUT%\lib\runtimes
 move %OUTPUT%\lib\%PROJECT%* %OUTPUT%
