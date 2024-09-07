@@ -63,13 +63,7 @@ public static unsafe class GameData
     public static Symbols.GlobalSymbol GetGlobalSymbol(string name) => globalSymbolDictionary[name];
     public static Symbols.GlobalMethodSymbol GetGlobalMethodSymbol(string name) => globalMethodSymbolDictionary[name];
 
-    internal static bool CheckVersion()
-    {
-        var ret = symbols.DllTimestamp == GetGameAssemblyTimestamp();
-        if (!ret)
-            DumpGameAssembly();
-        return ret;
-    }
+    internal static bool CheckVersion() => symbols.DllTimestamp == GetGameAssemblyTimestamp();
 
     private static int GetGameAssemblyTimestamp()
     {
@@ -81,7 +75,7 @@ public static unsafe class GameData
     }
 
     [Conditional("DEBUG")]
-    private static void DumpGameAssembly()
+    internal static void DumpGameAssembly()
     {
         var m = Util.GetProcessModule("GameAssembly.dll")!;
         var copy = new byte[m.ModuleMemorySize];

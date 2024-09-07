@@ -140,7 +140,7 @@ public static unsafe class WorkManager
     public static ShopWork.ShopItemStore* GetShopItemStore(long id) => NativePtr != null && getOrCreateMasterShopItemStore != null ? getOrCreateMasterShopItemStore(NativePtr->shop, id, 0) : null;
     public static ShopWork.ShopPickupItemStore* GetShopPickupItemStore(long id) => NativePtr != null && getOrCreateMasterShopPickupItemStore != null ? getOrCreateMasterShopPickupItemStore(NativePtr->shop, id, 0) : null;
 
-    public static SkillWork.BaseSkillStore* GetBaseSkillStore(long id, long skillLevel, int skillCoefficient, int damageCoefficient, long skillEffectGroupId, bool isGuest) => NativePtr != null && getOrCreateBaseSkillStore != null ? getOrCreateBaseSkillStore(NativePtr->skill, id, skillLevel, skillCoefficient, damageCoefficient, skillEffectGroupId, isGuest, 0) : null;
+    public static SkillWork.BaseSkillStore* GetBaseSkillStore(long id, long skillLevel, int skillCoefficient, int damageCoefficient, long skillEffectGroupId, bool isGuest, int attachmentDamageCoefficient) => NativePtr != null && getOrCreateBaseSkillStore != null ? getOrCreateBaseSkillStore(NativePtr->skill, id, skillLevel, skillCoefficient, damageCoefficient, skillEffectGroupId, isGuest, attachmentDamageCoefficient, 0) : null;
     public static SkillWork.NotesSetGroupSeriesStore* GetNotesSetGroupSeriesStore(long id) => NativePtr != null && getOrCreateNotesSetGroupSeriesStore != null ? getOrCreateNotesSetGroupSeriesStore(NativePtr->skill, id, 0) : null;
     public static SkillWork.NotesStore* GetNotesStore(long id) => NativePtr != null && getOrCreateNotesStore != null ? getOrCreateNotesStore(NativePtr->skill, id, 0) : null;
     public static SkillWork.PassiveSkillStore* GetPassiveSkillStore(long id) => NativePtr != null && getOrCreatePassiveSkillStore != null ? getOrCreatePassiveSkillStore(NativePtr->skill, id, 0) : null;
@@ -177,10 +177,10 @@ public static unsafe class WorkManager
     public static UserWork.RecoveryStoneStore* GetOrCreateRecoveryStoneStore(long id) => NativePtr != null && getOrCreateRecoveryStoneStore != null ? getOrCreateRecoveryStoneStore(NativePtr->user, id, 0) : null;
 
     public static WeaponWork.WeaponStore* GetWeaponStore(long id) => NativePtr != null && getOrCreateMasterWeaponStore != null ? getOrCreateMasterWeaponStore(NativePtr->weapon, id, 0) : null;
-    public static WeaponWork.WeaponStore* GetWeaponStore(long id, long level, RarityType rarityType, WeaponUpgradeType weaponUpgradeType, long releaseCount, int upgradeCount) => NativePtr != null && forkMasterWeaponInfoByLevel != null ? forkMasterWeaponInfoByLevel(NativePtr->weapon, id, level, rarityType, weaponUpgradeType, releaseCount, upgradeCount, 0) : null;
+    public static WeaponWork.WeaponStore* GetWeaponStore(long id, long level, RarityType rarityType, WeaponUpgradeType weaponUpgradeType, long releaseCount, int upgradeCount, long weaponAttachmentEffectId0, long weaponAttachmentEffectId1, long weaponAttachmentEffectId2) => NativePtr != null && forkMasterWeaponInfoByLevel != null ? forkMasterWeaponInfoByLevel(NativePtr->weapon, id, level, rarityType, weaponUpgradeType, releaseCount, upgradeCount, weaponAttachmentEffectId0, weaponAttachmentEffectId1, weaponAttachmentEffectId2, 0) : null;
     public static WeaponWork.WeaponNotesSetStore* GetWeaponNotesSetStore(long notesSetId) => NativePtr != null && getOrCreateWeaponNotesSetStore != null ? getOrCreateWeaponNotesSetStore(NativePtr->weapon, notesSetId, 0) : null;
     public static WeaponWork.WeaponRarityReleaseSkillStore* GetWeaponRarityReleaseSkillStore(long weaponRarityId, int releaseCount) => NativePtr != null && getOrCreateMasterWeaponRarityReleaseSkillStore != null ? getOrCreateMasterWeaponRarityReleaseSkillStore(NativePtr->weapon, weaponRarityId, releaseCount, 0) : null;
-    public static WeaponWork.WeaponSkillStore* GetWeaponSkillStore(long id, long weaponReleaseParameterGroupId, long releaseCount, long level) => NativePtr != null && getOrCreateMasterWeaponSkillStore != null ? getOrCreateMasterWeaponSkillStore(NativePtr->weapon, id, weaponReleaseParameterGroupId, releaseCount, level, 0) : null;
+    public static WeaponWork.WeaponSkillStore* GetWeaponSkillStore(long id, long weaponReleaseParameterGroupId, long releaseCount, long level, int attachmentDamageCoefficient) => NativePtr != null && getOrCreateMasterWeaponSkillStore != null ? getOrCreateMasterWeaponSkillStore(NativePtr->weapon, id, weaponReleaseParameterGroupId, releaseCount, level, attachmentDamageCoefficient, 0) : null;
 
     [GameSymbol("Command.Work.AccessoryWork$$GetOrCreateAccessoryRecipeStore")]
     private static delegate* unmanaged<AccessoryWork*, long, nint, AccessoryWork.AccessoryRecipeStore*> getOrCreateAccessoryRecipeStore;
@@ -397,7 +397,7 @@ public static unsafe class WorkManager
     private static delegate* unmanaged<ShopWork*, long, nint, ShopWork.ShopPickupItemStore*> getOrCreateMasterShopPickupItemStore;
 
     [GameSymbol("Command.Work.SkillWork$$GetOrCreateBaseSkillStore")]
-    private static delegate* unmanaged<SkillWork*, long, long, int, int, long, CBool, nint, SkillWork.BaseSkillStore*> getOrCreateBaseSkillStore;
+    private static delegate* unmanaged<SkillWork*, long, long, int, int, long, CBool, int, nint, SkillWork.BaseSkillStore*> getOrCreateBaseSkillStore;
     [GameSymbol("Command.Work.SkillWork$$GetOrCreateNotesSetGroupSeriesStore")]
     private static delegate* unmanaged<SkillWork*, long, nint, SkillWork.NotesSetGroupSeriesStore*> getOrCreateNotesSetGroupSeriesStore;
     [GameSymbol("Command.Work.SkillWork$$GetOrCreateNotesStore")]
@@ -467,7 +467,7 @@ public static unsafe class WorkManager
     [GameSymbol("Command.Work.WeaponWork$$GetOrCreateMasterWeaponRarityReleaseSkillStore")]
     private static delegate* unmanaged<WeaponWork*, long, int, nint, WeaponWork.WeaponRarityReleaseSkillStore*> getOrCreateMasterWeaponRarityReleaseSkillStore;
     [GameSymbol("Command.Work.WeaponWork$$ForkMasterWeaponInfoByLevel")]
-    private static delegate* unmanaged<WeaponWork*, long, long, RarityType, WeaponUpgradeType, long, int, nint, WeaponWork.WeaponStore*> forkMasterWeaponInfoByLevel;
+    private static delegate* unmanaged<WeaponWork*, long, long, RarityType, WeaponUpgradeType, long, int, long, long, long, nint, WeaponWork.WeaponStore*> forkMasterWeaponInfoByLevel;
     [GameSymbol("Command.Work.WeaponWork$$GetOrCreateMasterWeaponSkillStore")]
-    private static delegate* unmanaged<WeaponWork*, long, long, long, long, nint, WeaponWork.WeaponSkillStore*> getOrCreateMasterWeaponSkillStore;
+    private static delegate* unmanaged<WeaponWork*, long, long, long, long, int, nint, WeaponWork.WeaponSkillStore*> getOrCreateMasterWeaponSkillStore;
 }

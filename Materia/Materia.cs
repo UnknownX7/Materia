@@ -10,6 +10,7 @@ namespace Materia;
 
 internal static class Materia
 {
+    public static Version Version => Assembly.GetExecutingAssembly().GetName().Version ?? new Version();
     public static MateriaConfig Config { get; } = PluginConfiguration.Load<MateriaConfig>(Path.Combine(Util.MateriaDirectory.FullName, $"{nameof(Materia)}.json"));
     public static PluginManager PluginManager { get; } = new();
     public static RenderManager? RenderManager { get; private set; }
@@ -32,6 +33,7 @@ internal static class Materia
 
             if (!GameData.CheckVersion())
             {
+                GameData.DumpGameAssembly();
                 var result = User32.MessageBox(IntPtr.Zero, $"The installed {nameof(Materia)} Framework version is incompatible with the current game version, allowing the game to continue may be unsafe.\nWould you like to run the auto updater to check for updates? Press Cancel to close the game.",
                     $"{nameof(Materia)} Framework", User32.MessageBoxOptions.MB_YESNOCANCEL | User32.MessageBoxOptions.MB_ICONEXCLAMATION);
 
@@ -51,7 +53,7 @@ internal static class Materia
             }
 
             DisableTelemetry();
-            Logging.Info($"Starting {nameof(Materia)} {Assembly.GetExecutingAssembly().GetName().Version}");
+            Logging.Info($"Starting {nameof(Materia)} {Version}");
             Logging.Info($"Game Version Timestamp: {DateTimeOffset.FromUnixTimeSeconds(GameData.Symbols.DllTimestamp):g}");
             var address = SigScanner.UnityPlayer.Scan("48 83 EC 78 80 3D");
             playerLoopHook = new MateriaHook<Action>(address, Update);
