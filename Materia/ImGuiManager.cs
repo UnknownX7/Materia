@@ -24,6 +24,8 @@ internal sealed class ImGuiManager : IDisposable
     private int targetWidth;
     private int targetHeight;
 
+    internal ImFontPtr MonoFont { get; private set; }
+
     public ImGuiManager(SwapChain swapChain)
     {
         scene = new RawDX11Scene(swapChain.NativePointer)
@@ -48,6 +50,7 @@ internal sealed class ImGuiManager : IDisposable
         io.SetPlatformImeDataFn = nint.Zero; // TODO: IME causes freezes
         io.ConfigFlags = ImGuiConfigFlags.None; // TODO: Viewports don't work
         io.FontGlobalScale = Materia.Config.UIScale;
+        CreateFonts();
     }
 
     public void Render()
@@ -124,6 +127,28 @@ internal sealed class ImGuiManager : IDisposable
         }
 
         return newRet;
+    }
+
+    private unsafe void CreateFonts()
+    {
+        var monoFontPath = Path.Combine(Util.MateriaDirectory.FullName, "fonts", "DejaVuSansMono.ttf");
+
+        ushort[] ranges =
+        [
+            0x0020, 0x00FF,
+            0x2000, 0xFFFF,
+            0
+        ];
+
+        var fontConfig = new ImFontConfigPtr(ImGuiNative.ImFontConfig_ImFontConfig())
+        {
+            OversampleH = 2,
+            OversampleV = 2,
+            PixelSnapH = true
+        };
+
+        fixed (void* ptr = ranges)
+            MonoFont = ImGui.GetIO().Fonts.AddFontFromFileTTF(monoFontPath, 13, fontConfig, (nint)ptr);
     }
 
     private void OnBuildUi()

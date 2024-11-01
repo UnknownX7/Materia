@@ -156,7 +156,7 @@ public static partial class Util
     {
         var _ = 0;
         if (!WriteProcessMemory((int)process, address, value, value.Length, ref _))
-            throw new AccessViolationException($"Failed to write to address {address:X} (Process: {process})");
+            throw new AccessViolationException($"Failed to write to address {address:X} (Process: {process}) (Error Code: {Marshal.GetLastWin32Error()})");
     }
 
     public static void WriteMemory(nint address, byte[] value) => WriteMemory(CurrentHandle, address, value);
