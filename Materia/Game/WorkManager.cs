@@ -123,7 +123,9 @@ public static unsafe class WorkManager
         // TODO: Fix
         var utcNow = DateTimeOffset.UtcNow;
         var offsetUtcNow = utcNow.AddMilliseconds(-resetStore->masterReset->resetOffsetDatetime);
-        var nextMonth = new DateTimeOffset(offsetUtcNow.Year, offsetUtcNow.Month + 1, 1, 0, 0, 0, TimeSpan.Zero).AddMilliseconds(resetStore->masterReset->resetOffsetDatetime);
+        var nextMonth = offsetUtcNow.Month < 12
+            ? new DateTimeOffset(offsetUtcNow.Year, offsetUtcNow.Month + 1, 1, 0, 0, 0, TimeSpan.Zero).AddMilliseconds(resetStore->masterReset->resetOffsetDatetime)
+            : new DateTimeOffset(offsetUtcNow.Year + 1, 1, 1, 0, 0, 0, TimeSpan.Zero).AddMilliseconds(resetStore->masterReset->resetOffsetDatetime);
         return nextMonth - utcNow;
     }
 
