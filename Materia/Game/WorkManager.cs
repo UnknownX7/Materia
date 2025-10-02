@@ -15,6 +15,8 @@ public static unsafe class WorkManager
     public static AccessoryWork.AccessoryRecipeStore* GetAccessoryRecipeStore(long id) => NativePtr != null && getOrCreateAccessoryRecipeStore != null ? getOrCreateAccessoryRecipeStore(NativePtr->accessory, id, 0) : null;
     public static AccessoryWork.AccessoryStore* GetAccessoryStore(long id) => NativePtr != null && getOrCreateAccessoryStore != null ? getOrCreateAccessoryStore(NativePtr->accessory, id, 0) : null;
 
+    public static long GetViewCount() => NativePtr != null && getViewCount != null ? getViewCount(NativePtr->advertisement, 0) : 0;
+
     public static AreaBattleWork.SoloAreaGroupCategoryStore* GetSoloAreaGroupCategoryStore(long id) => NativePtr != null && getOrCreateSoloAreaGroupCategoryStore != null ? getOrCreateSoloAreaGroupCategoryStore(NativePtr->areaBattle, id, 0) : null;
     public static AreaBattleWork.SoloAreaGroupStore* GetSoloAreaGroupStore(long id) => NativePtr != null && getOrCreateSoloAreaGroupStore != null ? getOrCreateSoloAreaGroupStore(NativePtr->areaBattle, id, 0) : null;
     public static AreaBattleWork.SoloAreaStore* GetSoloAreaStore(long id) => NativePtr != null && getOrCreateSoloAreaStore != null ? getOrCreateSoloAreaStore(NativePtr->areaBattle, id, 0) : null;
@@ -24,7 +26,6 @@ public static unsafe class WorkManager
 
     public static BattleWork.BattleStore* GetBattleStore(long id) => NativePtr != null && getOrCreateBattleStore != null ? getOrCreateBattleStore(NativePtr->battle, id, 0) : null;
     public static BattleWork.BattleEnemyGroupStore* GetBattleEnemyGroupStore(long id) => NativePtr != null && getOrCreateBattleEnemyGroupStore != null ? getOrCreateBattleEnemyGroupStore(NativePtr->battle, id, 0) : null;
-    public static BattleWork.BattleRareWaveEncounterStore* GetBattleRareWaveEncounterStore(long id) => NativePtr != null && getOrCreateBattleRareWaveEncounterStore != null ? getOrCreateBattleRareWaveEncounterStore(NativePtr->battle, id, 0) : null;
     public static BattleWork.RareWaveStore* GetRareWaveStore(long id) => NativePtr != null && getOrCreateRareWaveStore != null ? getOrCreateRareWaveStore(NativePtr->battle, id, 0) : null;
     public static BattleWork.BattleFieldEffectStore* GetBattleFieldEffectStore(long id) => NativePtr != null && getOrCreateBattleFieldEffectStore != null ? getOrCreateBattleFieldEffectStore(NativePtr->battle, id, 0) : null;
     public static BattleWork.BattleTalkGroupStore* GetBattleTalkGroupStore(long id) => NativePtr != null && getOrCreateBattleTalkGroupStore != null ? getOrCreateBattleTalkGroupStore(NativePtr->battle, id, 0) : null;
@@ -106,11 +107,15 @@ public static unsafe class WorkManager
     public static MissionWork.MissionBonusStore* GetMissionBonusStore(long id) => NativePtr != null && getOrCreateMissionBonusStore != null ? getOrCreateMissionBonusStore(NativePtr->mission, id, 0) : null;
     public static MissionWork.MissionGuideUsageGroupStore* GetMissionGuideUsageGroupStore(long id) => NativePtr != null && getOrCreateMissionGuideUsageGroupInfo != null ? getOrCreateMissionGuideUsageGroupInfo(NativePtr->mission, id, 0) : null;
     public static MissionWork.MissionGuideUsageStore* GetMissionGuideUsageStore(int missionType) => NativePtr != null && getOrCreateMissionGuideUsageInfo != null ? getOrCreateMissionGuideUsageInfo(NativePtr->mission, missionType, 0) : null;
+    public static MissionGroupInfo* GetMissionGroupInfo(long missionGroupId) => NativePtr != null && getMissionGroupInfo != null ? getMissionGroupInfo(NativePtr->mission, missionGroupId, 0) : null;
+    public static bool IsGroupMissionClear(MissionGroupInfo* missionGroupInfo) => NativePtr != null && isGroupMissionClear != null && isGroupMissionClear(missionGroupInfo, 0);
 
     public static PartyWork.PartyGroupStore* GetPartyGroupStore(long id) => NativePtr != null && getOrCreatePartyGroupStore != null ? getOrCreatePartyGroupStore(NativePtr->party, id, 0) : null;
     public static PartyWork.PartyStore* GetPartyStore(long id, bool createDefault) => NativePtr != null && getOrCreatePartyStore != null ? getOrCreatePartyStore(NativePtr->party, id, createDefault, 0) : null;
     public static PartyWork.PartyCharacterStore* GetPartyCharacterStore(long partyMemberId, long idx, bool createDefault) => NativePtr != null && getOrCreatePartyCharacterStore != null ? getOrCreatePartyCharacterStore(NativePtr->party, partyMemberId, idx, createDefault, 0) : null;
-    public static PartyCharacterInfo* GetStatusParamInfo(PartyCharacterInfo* info) => NativePtr != null && getStatusParamInfo != null ? getStatusParamInfo(NativePtr->party, info, null, null, 0) : null;
+    public static PartyCharacterInfo* GetStatusParamInfo(PartyCharacterInfo* info, Unmanaged_List<PassiveSkillEffectInfo>* otherCharacterPassiveSkillEffectInfoList = null, IMemoriaInfo* memoriaInfo = null, Unmanaged_List<PassiveSkillEffectInfo>* memoriaPassiveSkillEffectInfos = null, Unmanaged_IReadOnlyList<ISkillArmouryInfo>* skillArmouryInfos = null) => NativePtr != null && getStatusParamInfo != null ? getStatusParamInfo(NativePtr->party, info, otherCharacterPassiveSkillEffectInfoList, memoriaInfo, memoriaPassiveSkillEffectInfos, skillArmouryInfos, 0) : null;
+    public static Unmanaged_Dictionary<long, Unmanaged_List<PassiveSkillEffectInfo>>* GetPartyPassiveSkillEffectInfoListDictionary(Unmanaged_Array<PartyCharacterInfo>* partyCharacterInfoList) => NativePtr != null && getPartyPassiveSkillEffectInfoListDictionary != null ? getPartyPassiveSkillEffectInfoListDictionary(NativePtr->party, partyCharacterInfoList, 0) : null;
+    public static Unmanaged_List<PassiveSkillEffectInfo>* GetOtherCharacterAllTargetTypePassiveSkillList(Unmanaged_Dictionary<long, Unmanaged_List<PassiveSkillEffectInfo>>* passiveSkillEffectInfoListDictionary, long targetId) => NativePtr != null && getOtherCharacterAllTargetTypePassiveSkillList != null ? getOtherCharacterAllTargetTypePassiveSkillList(NativePtr->party, passiveSkillEffectInfoListDictionary, targetId, 0) : null;
 
     public static ResetWork.ResetStore* GetResetStore(long id) => NativePtr != null && getOrCreateResetStore != null ? getOrCreateResetStore(NativePtr->reset, id, 0) : null;
     public static TimeSpan GetTimeUntilReset(long resetId)
@@ -189,6 +194,9 @@ public static unsafe class WorkManager
     [GameSymbol("Command.Work.AccessoryWork$$GetOrCreateAccessoryStore")]
     private static delegate* unmanaged<AccessoryWork*, long, nint, AccessoryWork.AccessoryStore*> getOrCreateAccessoryStore;
 
+    [GameSymbol("Command.Work.AdvertisementWork$$GetViewCount")]
+    private static delegate* unmanaged<AdvertisementWork*, nint, long> getViewCount;
+
     [GameSymbol("Command.Work.AreaBattleWork$$GetOrCreateSoloAreaGroupCategoryStore")]
     private static delegate* unmanaged<AreaBattleWork*, long, nint, AreaBattleWork.SoloAreaGroupCategoryStore*> getOrCreateSoloAreaGroupCategoryStore;
     [GameSymbol("Command.Work.AreaBattleWork$$GetOrCreateSoloAreaGroupStore")]
@@ -206,8 +214,6 @@ public static unsafe class WorkManager
     private static delegate* unmanaged<BattleWork*, long, nint, BattleWork.BattleStore*> getOrCreateBattleStore;
     [GameSymbol("Command.Work.BattleWork$$GetOrCreateBattleEnemyGroupStore")]
     private static delegate* unmanaged<BattleWork*, long, nint, BattleWork.BattleEnemyGroupStore*> getOrCreateBattleEnemyGroupStore;
-    [GameSymbol("Command.Work.BattleWork$$GetOrCreateBattleRareWaveEncounterStore")]
-    private static delegate* unmanaged<BattleWork*, long, nint, BattleWork.BattleRareWaveEncounterStore*> getOrCreateBattleRareWaveEncounterStore;
     [GameSymbol("Command.Work.BattleWork$$GetOrCreateRareWaveStore")]
     private static delegate* unmanaged<BattleWork*, long, nint, BattleWork.RareWaveStore*> getOrCreateRareWaveStore;
     [GameSymbol("Command.Work.BattleWork$$GetOrCreateBattleFieldEffectStore")]
@@ -359,6 +365,10 @@ public static unsafe class WorkManager
     private static delegate* unmanaged<MissionWork*, long, nint, MissionWork.MissionGuideUsageGroupStore*> getOrCreateMissionGuideUsageGroupInfo; // Actual return is the interface version
     [GameSymbol("Command.Work.MissionWork$$GetOrCreateMissionGuideUsageInfo")]
     private static delegate* unmanaged<MissionWork*, int, nint, MissionWork.MissionGuideUsageStore*> getOrCreateMissionGuideUsageInfo; // Actual return is the interface version
+    [GameSymbol("Command.Work.MissionWork$$GetMissionGroupInfo")]
+    private static delegate* unmanaged<MissionWork*, long, nint, MissionGroupInfo*> getMissionGroupInfo; // Actual return is the interface version
+    [GameSymbol("Command.Work.MissionWorkExtensions$$IsGroupMissionClear")]
+    private static delegate* unmanaged<MissionGroupInfo*, nint, CBool> isGroupMissionClear; // Actual arg is the interface version
 
     [GameSymbol("Command.Work.PartyWork$$GetOrCreatePartyGroupStore")]
     private static delegate* unmanaged<PartyWork*, long, nint, PartyWork.PartyGroupStore*> getOrCreatePartyGroupStore;
@@ -367,7 +377,11 @@ public static unsafe class WorkManager
     [GameSymbol("Command.Work.PartyWork$$GetOrCreatePartyCharacterStore")]
     private static delegate* unmanaged<PartyWork*, long, long, CBool, nint, PartyWork.PartyCharacterStore*> getOrCreatePartyCharacterStore;
     [GameSymbol("Command.Work.PartyWork$$GetStatusParamInfo")]
-    private static delegate* unmanaged<PartyWork*, PartyCharacterInfo*, Unmanaged_List<PassiveSkillEffectInfo>*, Unmanaged_IReadOnlyList<ISkillArmouryInfo>*, nint, PartyCharacterInfo*> getStatusParamInfo;
+    private static delegate* unmanaged<PartyWork*, PartyCharacterInfo*, Unmanaged_List<PassiveSkillEffectInfo>*, IMemoriaInfo*, Unmanaged_List<PassiveSkillEffectInfo>*, Unmanaged_IReadOnlyList<ISkillArmouryInfo>*, nint, PartyCharacterInfo*> getStatusParamInfo;
+    [GameSymbol("Command.Work.PartyWork$$GetPartyPassiveSkillEffectInfoListDictionary")]
+    private static delegate* unmanaged<PartyWork*, Unmanaged_Array<PartyCharacterInfo>*, nint, Unmanaged_Dictionary<long, Unmanaged_List<PassiveSkillEffectInfo>>*> getPartyPassiveSkillEffectInfoListDictionary;
+    [GameSymbol("Command.Work.PartyWork$$GetOtherCharacterAllTargetTypePassiveSkillList")]
+    private static delegate* unmanaged<PartyWork*, Unmanaged_Dictionary<long, Unmanaged_List<PassiveSkillEffectInfo>>*, long, nint, Unmanaged_List<PassiveSkillEffectInfo>*> getOtherCharacterAllTargetTypePassiveSkillList;
 
     [GameSymbol("Command.Work.ResetWork$$GetOrCreateResetStore")]
     private static delegate* unmanaged<ResetWork*, long, nint, ResetWork.ResetStore*> getOrCreateResetStore;

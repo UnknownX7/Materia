@@ -24,7 +24,7 @@ internal sealed class RenderManager : IDisposable
     {
         // TODO: May have to change if ReShade ever takes off for this game
         // UnityPlayer.GetSwapChain
-        var getSwapChain = (delegate* unmanaged<nint>)SigScanner.UnityPlayer.ScanText("E8 ?? ?? ?? ?? 4C 8B F0 48 85 C0 74 5C");
+        var getSwapChain = (delegate* unmanaged<nint>)SigScanner.UnityPlayer.ScanText("E8 ?? ?? ?? ?? 4C 8B F0 48 85 C0 74 5C BA");
         var swapChain = getSwapChain();
         var vtbl = *(nint**)swapChain;
 

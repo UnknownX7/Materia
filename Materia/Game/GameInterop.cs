@@ -1,14 +1,16 @@
-using System.Collections.Concurrent;
-using System.Diagnostics;
-using System.Reflection;
 using ECGen.Generated;
 using ECGen.Generated.Command;
 using ECGen.Generated.Command.KeyInput;
 using ECGen.Generated.Command.UI;
+using ECGen.Generated.System;
+using ECGen.Generated.TMPro;
 using ECGen.Generated.UnityEngine;
-using PInvoke;
 using Materia.Attributes;
 using Materia.Utilities;
+using PInvoke;
+using System.Collections.Concurrent;
+using System.Diagnostics;
+using System.Reflection;
 
 namespace Materia.Game;
 
@@ -159,12 +161,32 @@ public static unsafe class GameInterop
     public static T* GetSingletonMonoBehaviourInstance<T>(string name, int symbolIndex = 0) where T : unmanaged => (T*)GetSingletonMonoBehaviourInstance(name, symbolIndex);
     public static T* GetSingletonMonoBehaviourInstance<T>(int symbolIndex = 0) where T : unmanaged => (T*)GetSingletonMonoBehaviourInstance(typeof(T).Name, symbolIndex);
 
+    [GameSymbol("System.Type$$GetTypeFromHandle")]
+    private static delegate* unmanaged<nint, nint, Unmanaged_Type*> getTypeFromHandle;
+    public static Unmanaged_Type* GetTypeFromHandle<T>() where T : unmanaged => getTypeFromHandle((nint)(&Il2CppType<T>.NativePtr->thisArg), 0);
+
+    [GameSymbol("UnityEngine.GameObject$$GetComponents")]
+    private static delegate* unmanaged<GameObject*, Unmanaged_Type*, nint, Unmanaged_Array<Component>*> gameObjectGetComponents;
+    public static Unmanaged_Array<Component>* GetGameObjectComponents(void* obj)
+    {
+        return obj != null && ((GameObject*)obj)->m_CachedPtr != nint.Zero && Il2CppType<GameObject>.IsAssignableFrom(obj)
+            ? gameObjectGetComponents((GameObject*)obj, GetTypeFromHandle<Component>(), 0)
+            : null;
+    }
+
+    [GameSymbol("UnityEngine.Component$$get_gameObject")]
+    private static delegate* unmanaged<Component*, nint, GameObject*> componentGetGameObject;
+    public static GameObject* GetComponentGameObject(void* component)
+    {
+        return component != null && ((GameObject*)component)->m_CachedPtr != nint.Zero && Il2CppType<Component>.IsAssignableFrom(component)
+            ? componentGetGameObject((Component*)component, 0)
+            : null;
+    }
+
     [GameSymbol("UnityEngine.GameObject$$get_activeSelf")]
     private static delegate* unmanaged<GameObject*, nint, CBool> gameObjectGetActive;
     [GameSymbol("UnityEngine.GameObject$$get_activeInHierarchy")]
     private static delegate* unmanaged<GameObject*, nint, CBool> gameObjectGetActiveInHierarchy;
-    [GameSymbol("UnityEngine.Component$$get_gameObject")]
-    private static delegate* unmanaged<Component*, nint, GameObject*> componentGetGameObject;
     public static bool IsGameObjectActive(void* obj, bool inHierarchy = false)
     {
         if (obj == null || ((GameObject*)obj)->m_CachedPtr == nint.Zero) return false;
@@ -316,6 +338,10 @@ public static unsafe class GameInterop
     public static string GetLocalizedText(long id) => localizationCache.TryGetValue(id, out var loc)
         ? loc
         : Enum.GetValues<LocalizeTextCategory>().Skip(1).Select(category => GetLocalizedText(category, id)).FirstOrDefault(str => str != string.Empty) ?? string.Empty;
+
+    [GameSymbol("TMPro.TMP_Text$$SetText")]
+    private static delegate* unmanaged<TMP_Text*, Unmanaged_String*, CBool, nint, void> setText;
+    public static void SetText(TMP_Text* tmpText, string text, bool syncTextInputBox = true) => setText(tmpText, CreateString(text), syncTextInputBox, 0);
 
     public static void RunOnUpdate(Action action)
     {

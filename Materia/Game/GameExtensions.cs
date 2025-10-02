@@ -96,6 +96,8 @@ public static unsafe class GameExtensions
         return q;
     }
 
+    [GameSymbol("UnityEngine.RectTransform$$get_rect")]
+    private static delegate* unmanaged<RectTransform*, nint, Rect> getRect;
     [GameSymbol("Command.RectTransformExtensions$$GetRect", ReturnPointer = true)]
     private static delegate* unmanaged<System.Numerics.Vector4*, RectTransform*, nint, System.Numerics.Vector4*> rectTransformGetRect;
     public static System.Numerics.Vector3 GetPosition(this ref RectTransform transform)
@@ -130,13 +132,18 @@ public static unsafe class GameExtensions
         return new System.Numerics.Vector2(v.Z, v.W);
     }
 
-    public static (System.Numerics.Vector2 Min, System.Numerics.Vector2 Max) GetUIRect(this ref RectTransform transform)
+    public static (System.Numerics.Vector2 pos, System.Numerics.Vector2 size) GetUIRect(this ref RectTransform transform)
     {
         var v = new System.Numerics.Vector4();
         fixed (RectTransform* ptr = &transform)
             rectTransformGetRect(&v, ptr, 0);
-        var min = new System.Numerics.Vector2(v.X, ImGui.GetMainViewport().Size.Y - v.Y - v.W);
-        return (min, new System.Numerics.Vector2(min.X + v.Z, min.Y + v.W));
+        return (new System.Numerics.Vector2(MathF.Round(v.X), MathF.Round(ImGui.GetMainViewport().Size.Y - v.Y - v.W)), new System.Numerics.Vector2(MathF.Round(v.Z), MathF.Round(v.W)));
+    }
+
+    public static (System.Numerics.Vector2 min, System.Numerics.Vector2 max) GetUIRectMinMax(this ref RectTransform transform)
+    {
+        var (pos, size) = transform.GetUIRect();
+        return (pos, pos + size);
     }
 
     public static bool IsActive(this ref Canvas obj, bool inHierarchy = false)
