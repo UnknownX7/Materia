@@ -131,7 +131,8 @@ internal sealed class ImGuiManager : IDisposable
 
     private unsafe void CreateFonts()
     {
-        var monoFontPath = Path.Combine(Util.MateriaDirectory.FullName, "fonts", "DejaVuSansMono.ttf");
+        var monoFontPath = Util.FontDirectory.GetFiles("*.ttf").FirstOrDefault()?.FullName; // Path.Combine(Util.FontDirectory.FullName, "DejaVuSansMono.ttf");
+        if (monoFontPath == null) return;
 
         ushort[] ranges =
         [

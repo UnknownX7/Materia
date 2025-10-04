@@ -27,6 +27,7 @@ public static partial class Util
     public static DirectoryInfo ConfigDirectory { get; } = new(Path.Combine(MateriaDirectory.FullName, "configs"));
     public static DirectoryInfo GameDirectory { get; } = new(Path.GetDirectoryName(Environment.ProcessPath)!);
     public static DirectoryInfo LogDirectory { get; } = new(Path.Combine(MateriaDirectory.FullName, "logs"));
+    public static DirectoryInfo FontDirectory { get; } = new(Path.Combine(MateriaDirectory.FullName, "fonts"));
 
     private static nint CurrentHandle => Process.GetCurrentProcess().Handle;
 
@@ -40,6 +41,8 @@ public static partial class Util
             ConfigDirectory.Create();
         if (!LogDirectory.Exists)
             LogDirectory.Create();
+        if (!FontDirectory.Exists)
+            FontDirectory.Create();
     }
 
     public static void WaitFor(Func<bool> f, int sleepMs = 1000)
