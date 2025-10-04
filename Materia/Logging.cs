@@ -23,13 +23,16 @@ public static class Logging
         }
     }
     internal static string MainLogFilePath => mainLog.FilePath;
-    internal static List<string> MainLogOutputLines { get; } = new();
+    internal static List<string> MainLogOutputLines { get; } = [];
 
-    private static readonly Dictionary<string, LogFile> logFileCache = new();
+    private static readonly Dictionary<string, LogFile> logFileCache = [];
     private static readonly LogFile mainLog;
 
     static Logging()
     {
+        foreach (var log in Util.LogDirectory.GetFiles("*.log").OrderByDescending(f => f.CreationTime).Skip(10))
+            log.Delete();
+
         mainLog = OpenLog();
         mainLog.OnOutput = s =>
         {
